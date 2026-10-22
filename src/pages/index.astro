@@ -1,11 +1,364 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const glossary = [
+  ['t', '连续时间变量；eᴬᵗ 表示状态经过时间 t 的变化。离散系统用整数步数 k。'],
+  ['x(t)', '时刻 t 的状态向量；本例有两个状态 x₁(t)、x₂(t)。'],
+  ['x₀ = x(0)', '初始状态。判断能观测性时，把它看作需要从输出中辨认的未知量。'],
+  ['A', '状态矩阵，描述状态之间的动态关系；n 阶系统的 A 是 n×n 方阵。'],
+  ['B、u(t)', 'B 是输入矩阵，u(t) 是外部输入；Bu(t) 表示输入对状态变化的作用。判断能观测性时通常令输入为零。'],
+  ['C', '输出矩阵，把状态映射成测量值 y(t)。输出维数为 p 时，C 有 p 行。'],
+  ['y(t)', '系统输出或测量值，满足 y(t)=Cx(t)。它是已知数据，用来推断未知初态。'],
+  ['eᴬᵗ', '状态转移矩阵：零输入时，x(t) = eᴬᵗx₀。它不是对 A 的每个元素分别取指数。'],
+  ['P、P⁻¹', 'P 的列由 A 的线性无关特征向量组成；P 可逆时，P⁻¹ 把原坐标变换到特征向量坐标。'],
+  ['Λ、vᵢ', 'Λ=diag(λ₁,…,λₙ) 是特征值组成的对角矩阵；vᵢ 是满足 Avᵢ=λᵢvᵢ 的特征向量。'],
+  ['a、b', '例题 01 为简化矩阵乘法临时记 a=e⁻ᵗ、b=e⁻³ᵗ；它们不是新的系统参数。'],
+  ['n、p', 'n 是状态数/系统阶数；p 是输出分量数。能观测矩阵需要列秩达到 n。'],
+  ['Qₒ', '能观测矩阵，按顺序堆叠 C、CA、…、CAⁿ⁻¹。完全能观测当且仅当其列秩为 n。'],
+  ['rank(M)', '矩阵 M 的秩，即线性无关行或列的最大个数。能观测矩阵需要列满秩。'],
+  ['λ、v', 'A 的特征值和对应特征向量，满足 Av = λv。它们帮助拆解系统的动态模态。'],
+  ['G、k', '离散系统的状态矩阵和步数，x(k+1)=Gx(k)，对应能观测矩阵为 [C;CG;…;CGⁿ⁻¹]。'],
+  ['s、T', 's 是拉普拉斯变换中的复变量；T 是观察区间终点，格拉姆矩阵在 [0,T] 上积分。'],
+  ['Nₖ(t)', '时变系统构造能观测秩判据时的递推矩阵；下标 k 是递推阶数，不是时间步。'],
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f5ef" />
+    <meta name="description" content="线性系统理论学习笔记：从定义和变量开始，详细推导能观测性、矩阵指数、PBH 判据与约当块。" />
+    <link rel="canonical" href="https://anotherdimension1013-del.github.io/2026whph/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="学习手账" />
+    <meta property="og:title" content="能观测性学习笔记 · 学习手账" />
+    <meta property="og:description" content="从定义和变量开始，详细推导能观测性、矩阵指数、PBH 判据与约当块。" />
+    <meta property="og:url" content="https://anotherdimension1013-del.github.io/2026whph/" />
+    <meta name="twitter:card" content="summary" />
+    <title>能观测性学习笔记 · 学习手账</title>
+  </head>
+  <body>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <header class="site-header shell">
+      <a class="brand" href="#home" aria-label="学习手账首页"><span class="brand-icon" aria-hidden="true">✳</span><span>学习手账<span class="brand-period">.</span></span></a>
+      <nav aria-label="主导航"><a class="active" href="#observability">笔记</a><a href="#example-matrix">例题</a><a href="#glossary">符号表</a></nav>
+      <a class="header-link" href="https://docs.astro.build/" target="_blank" rel="noopener noreferrer">Astro 文档 <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="home" class="shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> LINEAR SYSTEMS · STUDY NOTES</p>
+          <h1 id="hero-title">能观测性，<br /><span>从定义到例题。</span></h1>
+          <p class="hero-description">这份笔记从“输出能不能告诉我们初始状态”这个问题出发，逐步解释状态转移矩阵、能观测矩阵、PBH 判据和约当块。每个符号先定义，每道例题把计算过程写出来。</p>
+          <a class="text-link" href="#observability">从核心概念开始 <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-note" aria-label="本篇笔记的核心问题">
+          <div class="note-tape" aria-hidden="true"></div>
+          <span class="note-label">ONE QUESTION</span>
+          <p>状态藏在系统里，<br />输出能把它找回来吗？</p>
+          <div class="note-footer"><span>线性系统理论 · 第三章</span><span aria-hidden="true">✎</span></div>
+          <span class="note-doodle" aria-hidden="true">✳</span>
+        </div>
+        <span class="hero-scribble" aria-hidden="true">start with why ↗</span>
+      </section>
+
+      <div class="content-layout">
+        <article class="lesson">
+          <header class="lesson-heading">
+            <div><p class="eyebrow">OBSERVABILITY</p><h2 id="observability">1. 能观测性是什么？</h2></div>
+            <span class="lesson-tag">核心概念</span>
+          </header>
+
+          <p>考虑连续线性系统：</p>
+          <div class="equation" role="math" aria-label="状态微分方程 x 点等于 A x 加 B u；输出 y 等于 C x">
+            <span>ẋ(t) = Ax(t) + Bu(t)</span><span>y(t) = Cx(t)</span>
+          </div>
+          <p>这里 <span class="math">x(t) ∈ ℝⁿ</span> 是状态，<span class="math">u(t)</span> 是输入，<span class="math">y(t) ∈ ℝᵖ</span> 是可测输出；<span class="math">A、B、C</span> 分别描述状态动态、输入如何作用于状态、状态如何映射到输出。</p>
+          <p>能观测性问的是：<strong>观察一段时间内的输出，能否唯一确定起始状态 x₀？</strong> 为了单独判断系统本身的性质，先令输入为零（<span class="math">u(t)=0</span>）。若在某个有限时间区间内，输出可以唯一确定 <span class="math">x₀</span>，系统就完全能观测。</p>
+          <aside class="callout"><strong>不可观测状态</strong><br />如果存在一个非零初始状态 <span class="math">x₀ ≠ 0</span>，却产生恒为零的输出 <span class="math">y(t) ≡ 0</span>，这个状态就藏在输出的“盲区”里，系统不完全能观测。</aside>
+          <p>“状态和输出有联系”还不够。不同状态的影响可能相互抵消；真正要检查的是：是否有非零初态完全不留输出痕迹。</p>
+
+          <h2 id="matrix-exponential">2. 先弄清 eᴬᵗ 是什么</h2>
+          <p>对零输入系统 <span class="math">ẋ=Ax</span>，矩阵指数定义为幂级数：</p>
+          <div class="equation equation-single" role="math" aria-label="e 的 At 次方等于单位矩阵加 At 加 A 平方 t 平方除以二阶乘，依此类推">
+            <span>e<sup>At</sup> = I + At + <span class="frac"><span>A²t²</span><span>2!</span></span> + <span class="frac"><span>A³t³</span><span>3!</span></span> + ⋯</span>
+          </div>
+          <p><span class="math">I</span> 是与 <span class="math">A</span> 同阶的单位矩阵。矩阵指数满足 <span class="math">d(e<sup>At</sup>)/dt = Ae<sup>At</sup></span>，所以初值为 <span class="math">x(0)=x₀</span> 时，系统解为：</p>
+          <div class="equation equation-single" role="math" aria-label="x t 等于 e 的 At 次方乘初始状态 x 零">
+            <span>x(t) = e<sup>At</sup>x₀</span>
+          </div>
+          <p>再由输出方程 <span class="math">y=Cx</span>，得到：</p>
+          <div class="equation equation-single" role="math" aria-label="y t 等于 C 乘 e 的 At 次方乘 x 零">
+            <span>y(t) = Ce<sup>At</sup>x₀</span>
+          </div>
+          <p>若 <span class="math">A</span> 可对角化，即 <span class="math">A=PΛP⁻¹</span>，则计算最方便：</p>
+          <div class="equation equation-single" role="math" aria-label="e 的 At 次方等于 P 乘对角矩阵 e 的 lambda i t 乘 P 的负一次方">
+            <span>e<sup>At</sup> = P e<sup>Λt</sup>P<sup>−1</sup> = P diag(e<sup>λ₁t</sup>, …, e<sup>λₙt</sup>)P<sup>−1</sup></span>
+          </div>
+          <p>意思是先把状态分解成各个特征模态；每个模态按自己的特征值指数变化，再变回原坐标。注意，<span class="math">e<sup>At</sup></span> 是对矩阵整体定义的，不是把矩阵中的每个数分别取指数。</p>
+
+          <section id="example-matrix" class="example-block">
+            <div class="example-heading"><span class="example-number">例题 01</span><span>不完全能观 · 逐步计算 eᴬᵗ</span></div>
+            <p>已知</p>
+            <div class="equation" role="math" aria-label="A 等于负二一；一负二。C 等于一负一">
+              <span>A = <span class="matrix"><span>−2</span><span>1</span><span>1</span><span>−2</span></span></span>
+              <span>C = <span class="row-matrix"><span>1</span><span>−1</span></span></span>
+            </div>
+            <p><strong>符号说明：</strong><span class="math">A</span> 是 2×2 状态矩阵；<span class="math">C</span> 是 1×2 输出矩阵；状态写作 <span class="math">x(t)=[x₁(t), x₂(t)]ᵀ</span>；未知初态为 <span class="math">x₀=[x₁(0),x₂(0)]ᵀ</span>；输出是一个标量 <span class="math">y(t)=Cx(t)</span>。</p>
+            <h3>第一步：求 A 的特征值和特征向量</h3>
+            <p>特征值由特征方程 <span class="math">det(λI−A)=0</span> 求出。这里 <span class="math">I=[[1,0],[0,1]]</span>，所以</p>
+            <div class="equation equation-single" role="math" aria-label="行列式 lambda 加二平方减一等于 lambda 加一乘 lambda 加三等于零">
+              <span>λI−A = [[λ+2, −1],[−1, λ+2]]</span>
+              <span>det(λI−A) = (λ+2)²−1 = (λ+1)(λ+3) = 0</span>
+            </div>
+            <p>所以特征值为 <span class="math">λ₁=−1</span>、<span class="math">λ₂=−3</span>。特征向量由 <span class="math">(A−λI)v=0</span> 求出。对 <span class="math">λ₁=−1</span>：</p>
+            <div class="equation equation-single" role="math" aria-label="A 加 I 乘 v 等于零，得到负 v 一加 v 二等于零，所以 v 一等于 v 二">
+              <span>(A+I)v = [[−1,1],[1,−1]]v=0 ⇒ −v₁+v₂=0 ⇒ v₁=v₂</span>
+            </div>
+            <p>取一个非零解 <span class="math">v₁=[1,1]ᵀ</span>。对 <span class="math">λ₂=−3</span>：</p>
+            <div class="equation equation-single" role="math" aria-label="A 加三 I 乘 v 等于零，得到 v 一加 v 二等于零，所以 v 二等于负 v 一">
+              <span>(A+3I)v = [[1,1],[1,1]]v=0 ⇒ v₁+v₂=0</span>
+            </div>
+            <p>取 <span class="math">v₂=[1,−1]ᵀ</span>。特征向量的长度可任意缩放；为方便计算，这里选分量为 1 和 ±1 的向量。把两个特征向量作为列组成矩阵 <span class="math">P=[v₁ v₂]</span>：</p>
+            <div class="equation" role="math" aria-label="P 等于一一；一负一，Lambda 等于负一零；零负三">
+              <span>P = <span class="matrix"><span>1</span><span>1</span><span>1</span><span>−1</span></span></span>
+              <span>Λ = <span class="matrix"><span>−1</span><span>0</span><span>0</span><span>−3</span></span></span>
+            </div>
+            <p>因此 <span class="math">A=PΛP⁻¹</span>。要使用这个分解，必须确认 <span class="math">P</span> 可逆。先回顾二阶矩阵的逆矩阵公式：</p>
+            <div class="equation equation-single" role="math" aria-label="二阶矩阵 a b；c d 的逆矩阵等于一除以 ad 减 bc，乘 d 负 b；负 c a">
+              <span>M=[[a,b],[c,d]]</span>
+              <span>M⁻¹ = <span class="frac"><span>1</span><span>ad−bc</span></span>[[d,−b],[−c,a]]</span>
+              <span>(ad−bc ≠ 0)</span>
+            </div>
+            <p>行列式 <span class="math">ad−bc</span> 不能为零，否则矩阵没有逆。现在对 <span class="math">P=[[1,1],[1,−1]]</span> 代入：<span class="math">a=1,b=1,c=1,d=−1</span>，所以</p>
+            <div class="calculation"><strong>逐项代入逆矩阵公式</strong><br /><span class="math">det(P)=ad−bc=1×(−1)−1×1=−2</span>，不为零，因此 P 可逆。<br /><span class="math">P⁻¹=(1/−2)[[−1,−1],[−1,1]]=(1/2)[[1,1],[1,−1]]</span>。<br />前面的负号乘进矩阵每个元素：<span class="math">(−1/2)×(−1)=1/2</span>，而 <span class="math">(−1/2)×1=−1/2</span>。</div>
+            <p>再直接验算，确认乘积是单位矩阵：</p>
+            <div class="equation equation-single" role="math" aria-label="P 乘 P 逆等于二分之一乘矩阵二零；零二，等于单位矩阵">
+              <span>PP⁻¹ = <span class="frac"><span>1</span><span>2</span></span>[[1+1, 1−1],[1−1, 1+1]] = [[1,0],[0,1]]=I</span>
+            </div>
+            <p>因此 <span class="math">P⁻¹</span> 的每一项都来自二阶逆矩阵公式，而不是猜出来的。再核对特征分解是否还原了原矩阵：</p>
+            <div class="calculation"><span class="math">PΛ=[[-1,−3],[−1,3]]</span>，所以<br /><span class="math">PΛP⁻¹ = (1/2)[[−1−3,−1+3],[−1+3,−1−3]]</span><br /><span class="math">=[[-2,1],[1,−2]]=A</span>。这验证了 <span class="math">A=PΛP⁻¹</span>。</div>
+            <h3>第二步：用对角化公式计算 eᴬᵗ</h3>
+            <p>先对对角矩阵里的每个特征值分别取指数：<span class="math">e<sup>Λt</sup>=[[e<sup>−t</sup>,0],[0,e<sup>−3t</sup>]]</span>。令 <span class="math">a=e<sup>−t</sup></span>、<span class="math">b=e<sup>−3t</sup></span>，按乘法结合律先算左边两个矩阵：</p>
+            <div class="equation equation-single" role="math" aria-label="P 乘对角 a b 得到第一行 a b，第二行 a 负 b">
+              <span>P e<sup>Λt</sup> = [[1,1],[1,−1]][[a,0],[0,b]] = [[a,b],[a,−b]]</span>
+            </div>
+            <p>最后再乘 <span class="math">P⁻¹=(1/2)[[1,1],[1,−1]]</span>。矩阵乘法“第 i 行乘第 j 列”，所以四个位置分别是：</p>
+            <div class="calculation"><strong>左上角：</strong><span class="math">(1/2)(a×1+b×1)=(a+b)/2</span><br /><strong>右上角：</strong><span class="math">(1/2)(a×1+b×(−1))=(a−b)/2</span><br /><strong>左下角：</strong><span class="math">(1/2)(a×1+(−b)×1)=(a−b)/2</span><br /><strong>右下角：</strong><span class="math">(1/2)(a×1+(−b)×(−1))=(a+b)/2</span></div>
+            <div class="equation equation-single" role="math" aria-label="e 的 At 次方等于二分之一乘以矩阵，第一行 e 负 t 加 e 负三 t，e 负 t 减 e 负三 t；第二行同样对称">
+              <span>e<sup>At</sup> = <span class="frac"><span>1</span><span>2</span></span><span class="matrix"><span>e<sup>−t</sup>+e<sup>−3t</sup></span><span>e<sup>−t</sup>−e<sup>−3t</sup></span><span>e<sup>−t</sup>−e<sup>−3t</sup></span><span>e<sup>−t</sup>+e<sup>−3t</sup></span></span></span>
+            </div>
+            <p>可以这样核对：先算 <span class="math">e<sup>Λt</sup>=diag(e<sup>−t</sup>,e<sup>−3t</sup>)</span>，再按顺序相乘 <span class="math">P e<sup>Λt</sup>P⁻¹</span>。例如左上角来自 <span class="math">½(e<sup>−t</sup>+e<sup>−3t</sup>)</span>，右上角来自 <span class="math">½(e<sup>−t</sup>−e<sup>−3t</sup>)</span>。</p>
+            <h3>第三步：算输出，看看它告诉了我们什么</h3>
+            <p>输出矩阵 <span class="math">C=[1,−1]</span> 是一行两列。左乘 <span class="math">e<sup>At</sup></span> 时，第一项是 C 的行与矩阵第一列点乘，第二项是 C 的行与第二列点乘：</p>
+            <div class="calculation"><span class="math">第一项 = 1×(a+b)/2 + (−1)×(a−b)/2 = b</span><br /><span class="math">第二项 = 1×(a−b)/2 + (−1)×(a+b)/2 = −b</span></div>
+            <div class="equation equation-single" role="math" aria-label="C 乘 e 的 At 次方等于 e 的负三 t，负 e 的负三 t">
+              <span>Ce<sup>At</sup> = [e<sup>−3t</sup>, −e<sup>−3t</sup>]</span>
+            </div>
+            <p>再用行向量乘初态列向量 <span class="math">x₀=[x₁(0),x₂(0)]ᵀ</span>：</p>
+            <div class="calculation"><span class="math">y(t) = [b,−b][x₁(0),x₂(0)]ᵀ</span><br /><span class="math">= b×x₁(0)+(−b)×x₂(0)</span><br /><span class="math">= (x₁(0)−x₂(0))e<sup>−3t</sup></span></div>
+            <div class="equation equation-single" role="math" aria-label="y t 等于 x 一零减 x 二零，乘 e 的负三 t">
+              <span>y(t) = Ce<sup>At</sup>x₀ = (x₁(0)−x₂(0))e<sup>−3t</sup></span>
+            </div>
+            <p>输出只能给出差值 <span class="math">x₁(0)−x₂(0)</span>，无法分别还原两个初始分量。例如初态 <span class="math">[1,1]ᵀ</span> 和 <span class="math">[0,0]ᵀ</span> 都产生零输出。因此系统<strong>不完全能观测</strong>。</p>
+            <div class="calculation"><strong>用秩判据复核</strong><br />二阶系统只需要 <span class="math">Qₒ=[C;CA]</span>。逐列计算 <span class="math">CA</span>：第一项 <span class="math">1×(−2)+(−1)×1=−3</span>；第二项 <span class="math">1×1+(−1)×(−2)=3</span>。因此<br /><span class="math">Qₒ=[[1,−1],[−3,3]]</span>。第二行是第一行的 −3 倍，只有一行线性独立，故 <span class="math">rank(Qₒ)=1&lt;2</span>，系统不完全能观。</div>
+            <div class="takeaway"><strong>本题要点</strong> 矩阵指数告诉我们初态如何演化；输出只看见演化后的某些组合。若两个初态组合在输出中始终重合，它们就不能被区分。</div>
+          </section>
+
+          <h2 id="column-functions">3. 为什么列函数线性无关就完全能观？</h2>
+          <p>把 <span class="math">Ce<sup>At</sup></span> 看作一个随时间变化的矩阵。它的 n 列分别是 n 个时间函数（多输出时是向量值函数）。初始状态的每个分量，正是这些列函数前面的系数：</p>
+          <div class="equation equation-single" role="math" aria-label="y t 等于 C e 的 A t x 零；若 x 零分量的线性组合为零就有不可观初态">
+            <span>y(t) = Ce<sup>At</sup>x₀ = x₁(0)f₁(t)+⋯+xₙ(0)fₙ(t)</span>
+          </div>
+          <p>若这些列函数线性相关，就存在一组不全为零的系数 <span class="math">x₀</span>，使组合对所有 t 都等于零；这组系数就是一个非零不可观测初态。若列函数线性无关，只有 <span class="math">x₀=0</span> 才能产生恒零输出，所以每个非零初态都会留下可辨认的输出。</p>
+          <aside class="callout"><strong>表述提醒</strong><br /><span class="math">Ce<sup>At</sup></span> 是 p×n 矩阵函数。这里严格说的是它的 <strong>n 个列函数</strong>线性无关；单输出时，也可说行向量里的 n 个分量函数线性无关。不要把“某一时刻矩阵的行满秩”与“整段时间上的函数线性无关”混为一谈。</aside>
+
+          <h2 id="criteria">4. 定常系统的能观测判据</h2>
+          <p>对 <span class="math">ẋ=Ax, y=Cx</span>，最直接的工具是能观测矩阵：</p>
+          <div class="equation equation-single" role="math" aria-label="Q o 等于 C；C A；一直到 C A 的 n 减一次方">
+            <span>Qₒ = <span class="matrix matrix-tall"><span>C</span><span>CA</span><span>⋮</span><span>CA<sup>n−1</sup></span></span></span>
+            <span>完全能观 ⇔ rank(Qₒ)=n</span>
+          </div>
+          <p>这个矩阵把输出及其连续时间导数中包含的状态信息依次堆叠起来。由 <span class="math">y=Cx</span> 可得 <span class="math">ẏ=CAx</span>、<span class="math">ÿ=CA²x</span>，一直到 <span class="math">y⁽ⁿ⁻¹⁾=CAⁿ⁻¹x</span>。因此堆叠后就是 <span class="math">Qₒx</span>。若列秩为 n，这些关系能唯一确定 n 个状态分量。</p>
+          <p>其他常用判据：</p>
+          <ul class="plain-list">
+            <li><strong>格拉姆矩阵：</strong><span class="math">Wₒ(0,T)=∫₀ᵀe<sup>Aᵀt</sup>CᵀCe<sup>At</sup>dt</span> 非奇异，当且仅当系统完全能观。它把整个时间区间内的输出信息累计起来。</li>
+            <li><strong>PBH 秩判据：</strong>对 A 的每个特征值 λ，检查 <span class="math">rank([C; λI−A])=n</span>。若不满秩，就存在该特征值对应的不可观模态。</li>
+            <li><strong>特征向量判据：</strong>不存在非零向量 v 同时满足 <span class="math">Av=λv</span> 和 <span class="math">Cv=0</span>。也就是 A 的任何特征模态都不能完全落在输出盲区。</li>
+            <li><strong>单输出频域判据：</strong><span class="math">C(sI−A)⁻¹</span> 没有零极点相消，当且仅当系统完全能观。</li>
+          </ul>
+
+          <section id="example-full-observable" class="example-block">
+            <div class="example-heading"><span class="example-number">例题 02</span><span>完全能观 · 手算能观矩阵</span></div>
+            <p>令</p>
+            <div class="equation" role="math" aria-label="A 为三阶矩阵，第一行为一零零，第二行零零一，第三行零五零；C 等于一一零">
+              <span>A = <span class="matrix matrix-3"><span>1</span><span>0</span><span>0</span><span>0</span><span>0</span><span>1</span><span>0</span><span>5</span><span>0</span></span></span>
+              <span>C = <span class="row-matrix"><span>1</span><span>1</span><span>0</span></span></span>
+            </div>
+            <p>系统阶数 <span class="math">n=3</span>，所以只需计算 <span class="math">C、CA、CA²</span> 三行。</p>
+            <div class="calculation"><strong>1）第一行：C</strong><br /><span class="math">C=[1,1,0]</span>。</div>
+            <div class="calculation"><strong>2）第二行：CA</strong><br />用行向量乘矩阵：<br /><span class="math">[1,1,0]A = [1×1+1×0+0×0, 1×0+1×0+0×5, 1×0+1×1+0×0] = [1,0,1]</span>。</div>
+            <div class="calculation"><strong>3）第三行：CA²</strong><br />可用上一行继续乘 A，每个分量仍是“行乘列”：<br /><span class="math">第一项 = 1×1+0×0+1×0=1</span><br /><span class="math">第二项 = 1×0+0×0+1×5=5</span><br /><span class="math">第三项 = 1×0+0×1+1×0=0</span><br />因此 <span class="math">CA²=[1,5,0]</span>。</div>
+            <div class="equation equation-single" role="math" aria-label="Qo 是三行一一零、一零一、一五零；行列式负四，不为零">
+              <span>Qₒ = <span class="matrix matrix-3"><span>1</span><span>1</span><span>0</span><span>1</span><span>0</span><span>1</span><span>1</span><span>5</span><span>0</span></span></span>
+              <span>det(Qₒ)=−4 ≠ 0</span>
+            </div>
+            <div class="calculation"><strong>行列式展开：</strong>沿第一行展开：<br /><span class="math">det(Qₒ)=1×(0×0−1×5)−1×(1×0−1×1)+0</span><br /><span class="math">=−5−(−1)=−4</span>。</div>
+            <p>这是 3×3 方阵，行列式不为零，说明满秩 3。因此系统<strong>完全能观测</strong>。特征值也可从 A 的特征方程看出：A 的第一维单独给出 <span class="math">λ=1</span>；其余 2×2 子块 <span class="math">[[0,1],[5,0]]</span> 满足 <span class="math">λ²−5=0</span>，所以另两个特征值为 <span class="math">√5、−√5</span>。</p>
+            <div class="calculation"><strong>PBH 交叉检查：</strong>要看每个特征值 λ 处堆叠矩阵 <span class="math">[C;λI−A]</span> 是否列满秩。<br /><span class="math">λ=1</span> 时，取三行组成的 3×3 子式：<span class="math">[[1,1,0],[0,1,−1],[0,−5,1]]</span>，行列式为 <span class="math">1×(1−5)=−4≠0</span>，故秩为 3。<br /><span class="math">λ=±√5</span> 时，取 <span class="math">C</span>、<span class="math">λI−A</span> 第一行和第二行组成子式：<span class="math">[[1,1,0],[λ−1,0,0],[0,λ,−1]]</span>，其行列式为 <span class="math">λ−1</span>。由于 <span class="math">±√5≠1</span>，这个子式也不为零，秩仍为 3。PBH 判据确认系统完全能观。</div>
+            <div class="takeaway"><strong>计算技巧</strong> 每次算 <span class="math">CAᵏ</span> 时，用上一行乘 A 即可，不必先完整算出 A²、A³。</div>
+          </section>
+
+          <h2 id="transfer">5. 不完全能观与传递函数中的零极点相消</h2>
+          <p>传递函数描述输入到输出的关系。一个状态模态如果无法出现在输出中，就可能在传递函数化简时被约掉。看下面的例子：</p>
+          <section id="example-cancellation" class="example-block">
+            <div class="example-heading"><span class="example-number">例题 03</span><span>零极点相消隐藏了一个状态模态</span></div>
+            <div class="equation" role="math" aria-label="A 为负四一；零负二。B 为零一转置。C 为负二一">
+              <span>A = <span class="matrix"><span>−4</span><span>1</span><span>0</span><span>−2</span></span></span>
+              <span>B = <span class="col-matrix"><span>0</span><span>1</span></span></span>
+              <span>C = <span class="row-matrix"><span>−2</span><span>1</span></span></span>
+            </div>
+            <p><span class="math">B</span> 是输入矩阵，<span class="math">C</span> 是输出矩阵。先算能观测矩阵的第二行 <span class="math">CA</span>：</p>
+            <div class="calculation"><span class="math">第一项 = (−2)×(−4)+1×0=8</span><br /><span class="math">第二项 = (−2)×1+1×(−2)=−4</span><br />所以 <span class="math">CA=[8,−4]</span>。</div>
+            <div class="equation equation-single" role="math" aria-label="Qo 是负二一；八负四，第二行是第一行的负四倍">
+              <span>Qₒ = <span class="matrix"><span>−2</span><span>1</span><span>8</span><span>−4</span></span></span>
+              <span>rank(Qₒ)=1&lt;2</span>
+            </div>
+            <p>因此系统不完全能观。再看输入到输出的传递函数 <span class="math">G(s)=C(sI−A)⁻¹B</span>。先写出矩阵：</p>
+            <div class="equation equation-single" role="math" aria-label="sI 减 A 等于矩阵 s 加四负一；零s 加二">
+              <span>sI−A = [[s+4,−1],[0,s+2]]</span>
+            </div>
+            <p>使用前面的二阶逆矩阵公式，取 <span class="math">a=s+4,b=−1,c=0,d=s+2</span>。行列式为 <span class="math">ad−bc=(s+4)(s+2)</span>，于是：</p>
+            <div class="equation equation-single" role="math" aria-label="sI 减 A 的逆等于分母 s 加四乘 s 加二，矩阵 s 加二一；零s 加四">
+              <span>(sI−A)⁻¹ = <span class="frac"><span><span class="matrix"><span>s+2</span><span>1</span><span>0</span><span>s+4</span></span></span><span>(s+2)(s+4)</span></span></span>
+            </div>
+            <p>先左乘 <span class="math">C=[−2,1]</span>。第一项为 <span class="math">(−2)(s+2)+1×0=−2(s+2)</span>；第二项为 <span class="math">(−2)×1+1×(s+4)=s+2</span>。所以</p>
+            <div class="equation equation-single" role="math" aria-label="C 乘 sI 减 A 的逆等于负二一除以 s 加四">
+              <span>C(sI−A)⁻¹ = <span class="frac"><span>[−2(s+2), s+2]</span><span>(s+2)(s+4)</span></span> = <span class="frac"><span>[−2,1]</span><span>s+4</span></span></span>
+            </div>
+            <p>最后右乘 <span class="math">B=[0,1]ᵀ</span>，等于取上面行向量的第二项，因此：</p>
+            <div class="equation equation-single" role="math" aria-label="传递函数 G s 等于一除以 s 加四">
+              <span>G(s)=C(sI−A)⁻¹B = <span class="frac"><span>1</span><span>s+4</span></span></span>
+            </div>
+            <p>未约分的表达式里有特征因子 <span class="math">(s+2)(s+4)</span>，而分子包含 <span class="math">s+2</span>，所以 <span class="math">s=−2</span> 处的极点被零点抵消。这个消失的模态与不完全能观相对应。</p>
+          </section>
+
+          <h2 id="time-varying-discrete">6. 时变、离散系统和对偶</h2>
+          <h3>时变系统：导数递推矩阵</h3>
+          <p>若 <span class="math">A、C</span> 随时间变化，定义 <span class="math">N₀(t)=C(t)</span>，并递推 <span class="math">Nₖ(t)=Nₖ₋₁(t)A(t)+dNₖ₋₁(t)/dt</span>。某个时刻堆叠矩阵的秩达到 n，是完全能观的充分条件。秩不足本身不能单独作为否定结论，必要时应回到格拉姆矩阵定义。</p>
+          <div class="calculation"><strong>直观例子：</strong><span class="math">A(t)=[[t,1,0],[0,t,0],[0,0,t²]]</span>，<span class="math">C=[1,0,0]</span>。第三个状态没有耦合到前两个状态，也没有出现在输出里，因此 <span class="math">x₃</span> 无论如何变化都不会被测到，系统不完全能观。</div>
+          <h3>离散系统：把 A 换成 G</h3>
+          <p>对 <span class="math">x(k+1)=Gx(k), y(k)=Cx(k)</span>，能观矩阵为 <span class="math">Qₒ=[C;CG;…;CGⁿ⁻¹]</span>。列秩等于 n 时完全能观。例如 <span class="math">G=diag(1,2), C=[1,0]</span> 时，<span class="math">Qₒ=[[1,0],[1,0]]</span>，第二个状态始终不进入输出，所以不可观。</p>
+          <h3>对偶原理</h3>
+          <p>系统能观测性可以转化为另一个对偶系统的能控性问题。原系统完全能观，当且仅当对偶系统完全能控。这也解释了能观矩阵与能控矩阵为何具有转置对应关系。</p>
+
+          <h2 id="jordan-block">7. 约当块：重特征值下的状态链</h2>
+          <p>约当块是一个特征值加上一条链式耦合。二阶例子为：</p>
+          <div class="equation equation-single" role="math" aria-label="J 等于 lambda 一；零 lambda；状态导数 x 一等于 lambda x 一加 x 二，x 二点等于 lambda x 二">
+            <span>J₂(λ) = <span class="matrix"><span>λ</span><span>1</span><span>0</span><span>λ</span></span></span>
+            <span>ẋ₁=λx₁+x₂，ẋ₂=λx₂</span>
+          </div>
+          <p>第二个状态按 <span class="math">e<sup>λt</sup></span> 演化，并驱动第一个状态。这就是“链”。当块大小大于 1，矩阵指数会出现时间的多项式因子：</p>
+          <div class="equation equation-single" role="math" aria-label="e 的 J t 次方等于 e 的 lambda t 乘矩阵一 t；零一">
+            <span>e<sup>J₂(λ)t</sup> = e<sup>λt</sup><span class="matrix"><span>1</span><span>t</span><span>0</span><span>1</span></span></span>
+          </div>
+          <p>例如 <span class="math">λ=2</span> 时，<span class="math">e<sup>Jt</sup>=e<sup>2t</sup>[[1,t],[0,1]]</span>，所以响应会有 <span class="math">te<sup>2t</sup></span> 项。若矩阵是 <span class="math">2I</span>，它由两个一阶约当块组成，可对角化，不会有 <span class="math">te<sup>2t</sup></span> 项。</p>
+          <p><strong>重数怎么读：</strong>同一特征值所有约当块的大小之和等于代数重数；约当块个数等于几何重数。重特征值不一定导致大于一阶的约当块；只有线性无关特征向量不足时，才会出现更长的广义特征向量链。</p>
+          <p><strong>和能观测性的联系：</strong>把 A 化成约当标准型后，对每个约当块，输出矩阵 C 在该块对应的首列不能为零；同一特征值有多个块时，这些首列还需线性无关。若某块完全没有输出通道，那个模态就可能不可观。这里的“首列”对应上三角约当块的约定。</p>
+
+          <h2 id="glossary">8. 符号速查</h2>
+          <div class="glossary">
+            {glossary.map(([symbol, meaning]) => <div class="glossary-row"><span class="glossary-symbol">{symbol}</span><span>{meaning}</span></div>)}
+          </div>
+          <div class="summary"><strong>判断顺序记忆：</strong>定常连续系统先算 <span class="math">Qₒ</span> 的秩；想找出具体不可观模态时用 PBH 或约当判据；单输出系统可观察是否存在零极点相消；时变系统看格拉姆矩阵或充分秩条件；离散系统把矩阵幂改为 <span class="math">Gᵏ</span>。</div>
+        </article>
+
+        <aside class="sidebar">
+          <section class="side-panel toc-panel" aria-labelledby="toc-title"><div class="panel-heading"><h2 id="toc-title">本篇目录</h2><span aria-hidden="true">⌘</span></div><ol class="toc-list"><li><a href="#observability">能观测性的定义</a></li><li><a href="#matrix-exponential">矩阵指数 eᴬᵗ</a></li><li><a href="#example-matrix">例题 01：逐步计算 eᴬᵗ</a></li><li><a href="#column-functions">列函数为何有关</a></li><li><a href="#criteria">定常系统判据</a></li><li><a href="#example-full-observable">例题 02：能观测矩阵</a></li><li><a href="#transfer">零极点相消</a></li><li><a href="#example-cancellation">例题 03：传递函数</a></li><li><a href="#time-varying-discrete">时变、离散与对偶</a></li><li><a href="#jordan-block">约当块与状态链</a></li><li><a href="#glossary">符号速查</a></li></ol></section>
+          <section class="side-panel now-panel"><span class="now-spark" aria-hidden="true">✳</span><p class="eyebrow">KEY IDEA</p><h2>抓住一个问题</h2><p class="now-topic">非零初态能否留下输出痕迹？</p><p class="now-copy">如果有非零初态使输出恒为零，系统就存在不可观测状态。</p><div class="now-status"><span></span> 从定义推判据</div></section>
+          <section class="about-card"><span class="about-sticker" aria-hidden="true">NOTE</span><p class="eyebrow">STUDY METHOD</p><h2>先看变量，<br />再看计算。</h2><p>读公式时先确认矩阵尺寸、向量方向和变量含义，再逐项做乘法。这样更容易发现推导中的错误。</p><a href="#glossary">查看符号表 <span aria-hidden="true">↓</span></a></section>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer shell"><span>© {new Date().getFullYear()} 学习手账</span><span>把每个符号讲清楚 <span class="footer-star">✳</span></span><a href="#home">回到顶部 ↑</a></footer>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(html) { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  :global(body) { margin: 0; min-width: 320px; color: #28342d; background: #f7f5ef; font-family: "Avenir Next", Avenir, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.75; }
+  :global(a) { color: inherit; text-decoration: none; }
+  :global(a:focus-visible) { outline: 2px solid #477663; outline-offset: 4px; border-radius: 4px; }
+  .paper-grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .2; background-image: radial-gradient(#a9a38f .45px, transparent .45px); background-size: 7px 7px; }
+  .shell { width: min(1120px, calc(100% - 56px)); margin-inline: auto; }
+  .site-header { height: 78px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #deded3; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-family: Georgia, "Songti SC", serif; font-size: 20px; font-weight: 700; letter-spacing: -.04em; }
+  .brand-icon { display: grid; place-items: center; width: 33px; height: 33px; color: #fff; background: #527862; border-radius: 50% 50% 47% 42%; font-size: 19px; }
+  .brand-period { color: #d17d58; }
+  nav { align-self: stretch; display: flex; gap: 32px; align-items: center; color: #7a8178; font-size: 13px; }
+  nav a { height: 100%; display: grid; align-items: center; position: relative; }
+  nav a:hover, nav a.active { color: #304b3a; }
+  nav a.active::after { content: ""; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #66866f; }
+  .header-link { font-size: 12px; color: #66756a; padding: 8px 12px; border: 1px solid #d7d9cd; border-radius: 5px; }
+  .hero { min-height: 340px; display: grid; grid-template-columns: 1fr 305px; align-items: center; gap: 55px; position: relative; padding: 48px 7% 54px; border-bottom: 1px solid #deded3; }
+  .eyebrow { margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .17em; color: #8b947d; }
+  .hero .eyebrow { display: flex; align-items: center; gap: 10px; }
+  .eyebrow-line { display: inline-block; width: 22px; height: 1px; background: #d17d58; }
+  h1, h2, h3, p { margin-top: 0; }
+  h1 { margin: 17px 0 14px; font-family: Georgia, "Songti SC", serif; font-size: clamp(38px, 4.5vw, 54px); letter-spacing: -.055em; font-weight: 500; line-height: 1.3; }
+  h1 span { color: #62816a; }
+  .hero-description { max-width: 550px; color: #778078; font-size: 13px; line-height: 1.95; margin-bottom: 17px; }
+  .text-link { display: inline-flex; align-items: center; gap: 10px; color: #bd704e; font-size: 12px; font-weight: 700; border-bottom: 1px solid #d8b4a0; padding-bottom: 3px; }
+  .hero-note { position: relative; width: 270px; min-height: 190px; padding: 26px 26px 17px; background: #e9e4ce; box-shadow: 8px 12px 0 #d8d4bf, 0 15px 32px #6e65401c; transform: rotate(2deg); }
+  .note-tape { position: absolute; top: -11px; left: 99px; width: 72px; height: 22px; background: #d3a7819c; transform: rotate(-4deg); }
+  .note-label { font-size: 9px; color: #9a8e6f; letter-spacing: .16em; }
+  .hero-note > p { position: relative; z-index: 1; margin: 14px 0; color: #49564a; font-family: Georgia, "Songti SC", serif; font-size: 20px; line-height: 1.7; }
+  .note-footer { display: flex; justify-content: space-between; color: #9a8e6f; font-size: 9px; }
+  .note-doodle { position: absolute; right: 21px; top: 48px; color: #c38461; font-size: 31px; opacity: .7; }
+  .hero-scribble { position: absolute; right: 4%; bottom: 20px; color: #a6a18d; font: italic 11px Georgia, serif; transform: rotate(-6deg); }
+  .content-layout { display: grid; grid-template-columns: minmax(0, 1fr) 248px; gap: 45px; align-items: start; padding: 42px 5% 68px; }
+  .lesson { min-width: 0; color: #515d53; font-size: 13px; line-height: 1.95; }
+  .lesson > p { margin: 12px 0; }
+  .lesson strong { color: #38463b; }
+  .lesson h2 { margin: 37px 0 12px; color: #354139; font-family: Georgia, "Songti SC", serif; font-size: 23px; font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
+  .lesson h3 { margin: 22px 0 7px; color: #526b57; font-family: Georgia, "Songti SC", serif; font-size: 16px; font-weight: 700; }
+  .lesson-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 17px; border-bottom: 1px solid #deded3; padding-bottom: 13px; }
+  .lesson-heading h2 { margin: 5px 0 0; }
+  .lesson-tag, .example-number { color: #a46d4f; background: #f1e5da; border-radius: 3px; padding: 3px 8px; font-size: 10px; white-space: nowrap; }
+  .math { font-family: "Cambria Math", Cambria, "Times New Roman", serif; color: #34483a; white-space: normal; font-size: 1.04em; }
+  .math sup, .equation sup { font-size: .72em; line-height: 0; }
+  .equation { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; column-gap: 25px; row-gap: 10px; margin: 15px 0; padding: 14px 12px; background: #eeeee5; border-left: 3px solid #8a9e82; color: #34483a; font-family: "Cambria Math", Cambria, "Times New Roman", serif; font-size: 17px; line-height: 1.5; text-align: center; overflow-x: auto; }
+  .equation-single { justify-content: flex-start; padding-left: 20px; }
+  .matrix { position: relative; display: inline-grid; grid-template-columns: repeat(2, max-content); gap: 2px 12px; vertical-align: middle; margin: 0 5px; padding: 3px 10px; line-height: 1.35; font-size: .88em; }
+  .matrix-3 { grid-template-columns: repeat(3, max-content); }
+  .matrix:before, .matrix:after, .row-matrix:before, .row-matrix:after, .col-matrix:before, .col-matrix:after { position: absolute; top: 50%; transform: translateY(-54%); font-family: "Times New Roman", serif; font-size: 2.2em; font-weight: 300; line-height: .8; }
+  .matrix:before, .row-matrix:before, .col-matrix:before { content: "["; left: 0; }.matrix:after, .row-matrix:after, .col-matrix:after { content: "]"; right: 0; }
+  .matrix > span { min-width: 1em; text-align: center; }
+  .matrix-tall { grid-template-columns: max-content; }
+  .row-matrix { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: max-content; gap: 11px; vertical-align: middle; margin: 0 5px; padding: 3px 10px; line-height: 1.35; font-size: .9em; }
+  .col-matrix { position: relative; display: inline-grid; grid-template-columns: max-content; gap: 2px; vertical-align: middle; margin: 0 5px; padding: 3px 10px; line-height: 1.3; font-size: .9em; }
+  .frac { display: inline-grid; grid-template-rows: auto auto; vertical-align: middle; text-align: center; line-height: 1.25; margin: 0 3px; font-size: .92em; }.frac > span:first-child { padding: 0 4px 2px; border-bottom: 1px solid currentColor; }.frac > span:last-child { padding-top: 1px; }
+  .callout, .calculation, .takeaway, .summary { margin: 18px 0; padding: 13px 16px; background: #f0eee3; border-left: 3px solid #c28b68; color: #697267; font-size: 12px; line-height: 1.9; }
+  .calculation { border-left-color: #8a9e82; background: #f1f2e9; }.takeaway { border-left-color: #c28b68; background: #f6eee5; }.summary { margin-top: 28px; padding: 17px 18px; font-size: 13px; }
+  .example-block { margin: 25px 0 27px; padding: 18px 20px 17px; border: 1px solid #e0dfd4; background: #fbfaf6a8; }
+  .example-heading { display: flex; align-items: center; gap: 11px; margin: -18px -20px 14px; padding: 11px 15px; border-bottom: 1px solid #e6e4d9; color: #667365; font-size: 11px; font-weight: 700; }
+  .example-block > p { margin: 10px 0; }.example-block h3 { margin-top: 18px; }
+  .plain-list { padding-left: 21px; }.plain-list li { margin: 9px 0; padding-left: 3px; }
+  .glossary { margin-top: 13px; border-top: 1px solid #deded3; }
+  .glossary-row { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #e4e2d8; color: #6f786e; font-size: 11px; line-height: 1.7; }
+  .glossary-symbol { color: #4d6b54; font-family: "Cambria Math", Cambria, serif; font-size: 13px; font-weight: 700; }
+  .sidebar { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 17px; }
+  .side-panel { padding: 17px; border: 1px solid #e0dfd4; background: #fbfaf6e8; }
+  .panel-heading { display: flex; justify-content: space-between; align-items: center; }.panel-heading h2, .now-panel h2 { margin: 0; color: #48554a; font-family: Georgia, "Songti SC", serif; font-size: 15px; font-weight: 600; }
+  .panel-heading > span { color: #b2b3a4; }.toc-list { margin: 12px 0 0; padding-left: 19px; color: #7c857a; font-size: 10px; }.toc-list li { padding: 5px 0; }.toc-list a:hover { color: #4e755b; }
+  .now-panel { position: relative; overflow: hidden; background: #e9eee5; border-color: #e0e8dc; }.now-panel .eyebrow { margin-bottom: 6px; color: #83947e; font-size: 9px; }.now-topic { max-width: 185px; margin: 11px 0 5px; color: #64806a; font-family: Georgia, "Songti SC", serif; font-size: 13px; font-weight: 700; }.now-copy { max-width: 195px; margin: 0; color: #818a7d; font-size: 10px; line-height: 1.8; }.now-status { margin-top: 13px; color: #819079; font-size: 9px; }.now-status span { display: inline-block; width: 6px; height: 6px; margin-right: 5px; background: #82a380; border-radius: 50%; }.now-spark { position: absolute; top: 9px; right: 13px; color: #c2cda8; font-size: 35px; }
+  .about-card { position: relative; padding: 19px; background: #f1e8dc; }.about-card .eyebrow { max-width: 170px; color: #a28973; font-size: 9px; }.about-card h2 { margin: 11px 0 7px; color: #66594d; font-family: Georgia, "Songti SC", serif; font-size: 17px; line-height: 1.6; }.about-card > p:not(.eyebrow) { margin: 0; color: #8b7d70; font-size: 10px; line-height: 1.85; }.about-card > a { display: inline-block; margin-top: 12px; color: #ad7355; font-size: 10px; font-weight: 700; }.about-sticker { position: absolute; top: 11px; right: 12px; padding: 3px 6px; color: #fff; background: #cc8c67; font: 8px Georgia, serif; transform: rotate(7deg); }
+  .site-footer { min-height: 65px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #deded3; color: #969b8e; font-size: 10px; }.footer-star { color: #d17d58; }.site-footer a:hover { color: #526d58; }
+  @media (max-width: 900px) { .content-layout { grid-template-columns: minmax(0, 1fr) 220px; gap: 26px; padding-inline: 2%; }.hero { grid-template-columns: 1fr 270px; gap: 25px; }.hero-note { width: 245px; } }
+  @media (max-width: 680px) { .shell { width: min(100% - 34px, 560px); }.site-header { height: 68px; }.brand { font-size: 17px; }nav { gap: 17px; font-size: 11px; }.header-link { display: none; }.hero { display: block; min-height: initial; padding: 45px 0 44px; }.hero-note { display: none; }.content-layout { display: flex; flex-direction: column; padding: 30px 0 48px; gap: 27px; }.lesson { width: 100%; }.sidebar { position: static; display: grid; grid-template-columns: 1fr 1fr; width: 100%; }.toc-panel { grid-column: 1 / -1; }.example-block { padding-inline: 14px; }.example-heading { margin-inline: -14px; }.equation { justify-content: flex-start; font-size: 15px; }.site-footer { min-height: 72px; flex-wrap: wrap; gap: 2px 14px; padding-block: 12px; }.site-footer span:nth-child(2) { order: 3; width: 100%; } }
+  @media (max-width: 420px) { .shell { width: calc(100% - 28px); }nav { gap: 12px; }.lesson h2 { font-size: 20px; }.lesson-heading h2 { font-size: 19px; }.lesson-tag { font-size: 9px; }.glossary-row { grid-template-columns: 75px 1fr; gap: 8px; }.sidebar { grid-template-columns: 1fr; }.toc-panel { grid-column: auto; }.matrix { gap: 2px 8px; padding-inline: 8px; }.equation { font-size: 14px; } }
+  @media (prefers-reduced-motion: reduce) { :global(html) { scroll-behavior: auto; } }
+</style>
