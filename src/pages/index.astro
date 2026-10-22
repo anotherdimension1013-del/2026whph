@@ -8,15 +8,18 @@ const glossary = [
   ['C', '输出矩阵，把状态映射成测量值 y(t)。输出维数为 p 时，C 有 p 行。'],
   ['y(t)', '系统输出或测量值，满足 y(t)=Cx(t)。它是已知数据，用来推断未知初态。'],
   ['eᴬᵗ', '状态转移矩阵：零输入时，x(t) = eᴬᵗx₀。它不是对 A 的每个元素分别取指数。'],
+  ['Φ(t,t₀)', '时变系统从初始时刻 t₀ 到时刻 t 的状态转移矩阵；零输入时 x(t)=Φ(t,t₀)x(t₀)。'],
   ['P、P⁻¹', 'P 的列由 A 的线性无关特征向量组成；P 可逆时，P⁻¹ 把原坐标变换到特征向量坐标。'],
   ['Λ、vᵢ', 'Λ=diag(λ₁,…,λₙ) 是特征值组成的对角矩阵；vᵢ 是满足 Avᵢ=λᵢvᵢ 的特征向量。'],
   ['a、b', '例题 01 为简化矩阵乘法临时记 a=e⁻ᵗ、b=e⁻³ᵗ；它们不是新的系统参数。'],
   ['n、p', 'n 是状态数/系统阶数；p 是输出分量数。能观测矩阵需要列秩达到 n。'],
   ['Qₒ', '能观测矩阵，按顺序堆叠 C、CA、…、CAⁿ⁻¹。完全能观测当且仅当其列秩为 n。'],
+  ['Wₒ', '能观测格拉姆矩阵；在区间 [t₀,t₁] 上由 ΦᵀCᵀCΦ 积分得到。它正定（等价于非奇异）当且仅当该区间完全能观测。'],
   ['rank(M)', '矩阵 M 的秩，即线性无关行或列的最大个数。能观测矩阵需要列满秩。'],
   ['λ、v', 'A 的特征值和对应特征向量，满足 Av = λv。它们帮助拆解系统的动态模态。'],
   ['G、k', '离散系统的状态矩阵和步数，x(k+1)=Gx(k)，对应能观测矩阵为 [C;CG;…;CGⁿ⁻¹]。'],
   ['s、T', 's 是拉普拉斯变换中的复变量；T 是观察区间终点，格拉姆矩阵在 [0,T] 上积分。'],
+  ['t₀、t₁', '时变系统的观察区间起点和终点；x(t₀) 是要辨认的初始状态。'],
   ['Nₖ(t)', '时变系统构造能观测秩判据时的递推矩阵；下标 k 是递推阶数，不是时间步。'],
 ];
 ---
@@ -173,6 +176,7 @@ const glossary = [
           </div>
           <p>若这些列函数线性相关，就存在一组不全为零的系数 <span class="math">x₀</span>，使组合对所有 t 都等于零；这组系数就是一个非零不可观测初态。若列函数线性无关，只有 <span class="math">x₀=0</span> 才能产生恒零输出，所以每个非零初态都会留下可辨认的输出。</p>
           <aside class="callout"><strong>表述提醒</strong><br /><span class="math">Ce<sup>At</sup></span> 是 p×n 矩阵函数。这里严格说的是它的 <strong>n 个列函数</strong>线性无关；单输出时，也可说行向量里的 n 个分量函数线性无关。不要把“某一时刻矩阵的行满秩”与“整段时间上的函数线性无关”混为一谈。</aside>
+          <p><strong>看一个维数例子：</strong>令 <span class="math">A=[[0,1],[−1,0]]</span>、<span class="math">C=[1,0]</span>。此时 <span class="math">e<sup>At</sup>=[[cos t,sin t],[−sin t,cos t]]</span>，所以 <span class="math">Ce<sup>At</sup>=[cos t,sin t]</span>。每个固定时刻，这只是一个 1×2 行矩阵，普通矩阵秩最多为 1；但作为时间函数，<span class="math">cos t</span> 和 <span class="math">sin t</span> 线性无关：若 <span class="math">a cos t+b sin t=0</span> 对所有 t 成立，代入 <span class="math">t=0</span> 得 <span class="math">a=0</span>，再代入 <span class="math">t=π/2</span> 得 <span class="math">b=0</span>。对应地，<span class="math">Qₒ=[C;CA]=[[1,0],[0,1]]</span> 满秩，系统完全能观。判断的是“函数列是否独立”，不是要求每个时刻的 <span class="math">Ce<sup>At</sup></span> 都有列满秩。</p>
 
           <h2 id="criteria">4. 定常系统的能观测判据</h2>
           <p>对 <span class="math">ẋ=Ax, y=Cx</span>，最直接的工具是能观测矩阵：</p>
@@ -247,7 +251,7 @@ const glossary = [
           <h2 id="time-varying-discrete">6. 时变、离散系统和对偶</h2>
           <h3>时变系统：导数递推矩阵</h3>
           <p>若 <span class="math">A、C</span> 随时间变化，定义 <span class="math">N₀(t)=C(t)</span>，并递推 <span class="math">Nₖ(t)=Nₖ₋₁(t)A(t)+dNₖ₋₁(t)/dt</span>。某个时刻堆叠矩阵的秩达到 n，是完全能观的充分条件。秩不足本身不能单独作为否定结论，必要时应回到格拉姆矩阵定义。</p>
-          <div class="calculation"><strong>直观例子：</strong><span class="math">A(t)=[[t,1,0],[0,t,0],[0,0,t²]]</span>，<span class="math">C=[1,0,0]</span>。第三个状态没有耦合到前两个状态，也没有出现在输出里，因此 <span class="math">x₃</span> 无论如何变化都不会被测到，系统不完全能观。</div>
+          <div class="calculation"><strong>例题核验（课件第 78–80 页）：</strong>取 <span class="math">A(t)=[[t,1,0],[0,t,0],[0,0,t²]]</span>、<span class="math">C=[1,0,0]</span>。把矩阵方程逐行写开：<br /><span class="math">ẋ₁=tx₁+x₂</span>，<span class="math">ẋ₂=tx₂</span>，<span class="math">ẋ₃=t²x₃</span>，而 <span class="math">y=x₁</span>。第三个状态不进入前两条方程，也不被 C 读取。令初态 <span class="math">x(t₀)=[0,0,1]ᵀ</span>，则 <span class="math">x₁(t)=x₂(t)=0</span>，<span class="math">x₃(t)=exp((t³−t₀³)/3)</span>，因此非零初态始终产生 <span class="math">y(t)=0</span>。这直接证明本例不完全能观。相同结论也可由 Gramian 看出：<span class="math">e₃=[0,0,1]ᵀ</span> 满足 <span class="math">CΦ(t,t₀)e₃=0</span>，于是 <span class="math">e₃ᵀWₒe₃=∫‖CΦ(t,t₀)e₃‖²dt=0</span>，Gramian 有非零零空间，必然奇异。注意：这里的结论来自明确构造的零输出状态；不能仅由时变递推矩阵秩不足推出。</div>
           <h3>离散系统：把 A 换成 G</h3>
           <p>对 <span class="math">x(k+1)=Gx(k), y(k)=Cx(k)</span>，能观矩阵为 <span class="math">Qₒ=[C;CG;…;CGⁿ⁻¹]</span>。列秩等于 n 时完全能观。例如 <span class="math">G=diag(1,2), C=[1,0]</span> 时，<span class="math">Qₒ=[[1,0],[1,0]]</span>，第二个状态始终不进入输出，所以不可观。</p>
           <h3>对偶原理</h3>
@@ -265,17 +269,25 @@ const glossary = [
           </div>
           <p>例如 <span class="math">λ=2</span> 时，<span class="math">e<sup>Jt</sup>=e<sup>2t</sup>[[1,t],[0,1]]</span>，所以响应会有 <span class="math">te<sup>2t</sup></span> 项。若矩阵是 <span class="math">2I</span>，它由两个一阶约当块组成，可对角化，不会有 <span class="math">te<sup>2t</sup></span> 项。</p>
           <p><strong>重数怎么读：</strong>同一特征值所有约当块的大小之和等于代数重数；约当块个数等于几何重数。重特征值不一定导致大于一阶的约当块；只有线性无关特征向量不足时，才会出现更长的广义特征向量链。</p>
-          <p><strong>和能观测性的联系：</strong>把 A 化成约当标准型后，对每个约当块，输出矩阵 C 在该块对应的首列不能为零；同一特征值有多个块时，这些首列还需线性无关。若某块完全没有输出通道，那个模态就可能不可观。这里的“首列”对应上三角约当块的约定。</p>
+          <p><strong>广义特征向量从哪里来：</strong>对上三角块 <span class="math">J₂(λ)=[[λ,1],[0,λ]]</span>，取特征向量 <span class="math">v₁=[1,0]ᵀ</span> 和广义特征向量 <span class="math">v₂=[0,1]ᵀ</span>。直接相乘得 <span class="math">(J−λI)v₁=0</span>、<span class="math">(J−λI)v₂=v₁</span>。所以列基 <span class="math">[v₁,v₂]</span> 下，广义特征向量链正好产生上超对角线为 1 的块。若改用 <span class="math">λI−J</span> 写法，第二个等式会变成 <span class="math">(λI−J)v₂=−v₁</span>；两种写法只差符号，不能混用。</p>
+          <p><strong>和能观测性的联系：</strong>对这个单块，写输出矩阵在该块上的部分为 <span class="math">C=[c₁,c₂]</span>。由矩阵指数公式，<span class="math">Ce<sup>Jt</sup>=e<sup>λt</sup>[c₁,c₁t+c₂]</span>。若 <span class="math">c₁≠0</span>，两个列函数不可能线性相关：若 <span class="math">a c₁+b(c₁t+c₂)=0</span> 对所有 t 成立，比较 t 的系数得 <span class="math">b c₁=0</span>，所以 <span class="math">b=0</span>，再得 <span class="math">a=0</span>。因此该 Jordan 块可观。一般情形下，每个块对应的输出首列必须非零；同一特征值有多个块时，这些首列向量还必须线性无关，否则不同块的同特征值输出会有不可区分的组合。这里的“首列”对应上三角约当块的约定；若教材采用下三角形式，首末方向会对调。</p>
 
           <h2 id="glossary">8. 符号速查</h2>
           <div class="glossary">
             {glossary.map(([symbol, meaning]) => <div class="glossary-row"><span class="glossary-symbol">{symbol}</span><span>{meaning}</span></div>)}
           </div>
           <div class="summary"><strong>判断顺序记忆：</strong>定常连续系统先算 <span class="math">Qₒ</span> 的秩；想找出具体不可观模态时用 PBH 或约当判据；单输出系统可观察是否存在零极点相消；时变系统看格拉姆矩阵或充分秩条件；离散系统把矩阵幂改为 <span class="math">Gᵏ</span>。</div>
+
+          <h2 id="references">9. 依据与勘误说明</h2>
+          <ul class="plain-list">
+            <li><strong>主要依据：</strong>你提供的《第三章 线性系统的能控性和能观测性》课件。本文使用的例题对应课件第 68–70 页（2 阶系统与矩阵指数）、第 78–80 页（时变秩递推）、第 89–91 页（3 阶完全能观例题）、第 87–88 页（约当判据）和第 184–186 页（零极点相消）。</li>
+            <li><strong>教材对照：</strong>郑大钟《线性系统理论》第四章中连续定常与时变系统能观测性判据、约当规范型及结构分解相关内容。不同版次页码可能不同，因此这里不写未经核实的页码；涉及具体例题时以课件页码为准。</li>
+            <li><strong>两处严谨性说明：</strong>课件把 <span class="math">Ce<sup>At</sup></span> 写作“行线性无关”容易和固定时刻的矩阵秩混淆，本文按定义写成“列函数组线性无关”；时变递推矩阵满秩是充分条件，课件例题由秩不足直接判不可观有逻辑跳步，本文另用非零初态构造零输出轨迹补足证明。</li>
+          </ul>
         </article>
 
         <aside class="sidebar">
-          <section class="side-panel toc-panel" aria-labelledby="toc-title"><div class="panel-heading"><h2 id="toc-title">本篇目录</h2><span aria-hidden="true">⌘</span></div><ol class="toc-list"><li><a href="#observability">能观测性的定义</a></li><li><a href="#matrix-exponential">矩阵指数 eᴬᵗ</a></li><li><a href="#example-matrix">例题 01：逐步计算 eᴬᵗ</a></li><li><a href="#column-functions">列函数为何有关</a></li><li><a href="#criteria">定常系统判据</a></li><li><a href="#example-full-observable">例题 02：能观测矩阵</a></li><li><a href="#transfer">零极点相消</a></li><li><a href="#example-cancellation">例题 03：传递函数</a></li><li><a href="#time-varying-discrete">时变、离散与对偶</a></li><li><a href="#jordan-block">约当块与状态链</a></li><li><a href="#glossary">符号速查</a></li></ol></section>
+          <section class="side-panel toc-panel" aria-labelledby="toc-title"><div class="panel-heading"><h2 id="toc-title">本篇目录</h2><span aria-hidden="true">⌘</span></div><ol class="toc-list"><li><a href="#observability">能观测性的定义</a></li><li><a href="#matrix-exponential">矩阵指数 eᴬᵗ</a></li><li><a href="#example-matrix">例题 01：逐步计算 eᴬᵗ</a></li><li><a href="#column-functions">列函数为何有关</a></li><li><a href="#criteria">定常系统判据</a></li><li><a href="#example-full-observable">例题 02：能观测矩阵</a></li><li><a href="#transfer">零极点相消</a></li><li><a href="#example-cancellation">例题 03：传递函数</a></li><li><a href="#time-varying-discrete">时变、离散与对偶</a></li><li><a href="#jordan-block">约当块与状态链</a></li><li><a href="#glossary">符号速查</a></li><li><a href="#references">依据与勘误</a></li></ol></section>
           <section class="side-panel now-panel"><span class="now-spark" aria-hidden="true">✳</span><p class="eyebrow">KEY IDEA</p><h2>抓住一个问题</h2><p class="now-topic">非零初态能否留下输出痕迹？</p><p class="now-copy">如果有非零初态使输出恒为零，系统就存在不可观测状态。</p><div class="now-status"><span></span> 从定义推判据</div></section>
           <section class="about-card"><span class="about-sticker" aria-hidden="true">NOTE</span><p class="eyebrow">STUDY METHOD</p><h2>先看变量，<br />再看计算。</h2><p>读公式时先确认矩阵尺寸、向量方向和变量含义，再逐项做乘法。这样更容易发现推导中的错误。</p><a href="#glossary">查看符号表 <span aria-hidden="true">↓</span></a></section>
         </aside>
