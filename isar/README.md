@@ -6,7 +6,7 @@
 | 阶段 | 内容 | 文件 |
 |---|---|---|
 | 1 | 方案与参数设计 | `阶段1_方案与参数设计.md`、`design_params.m`、`params_table.md` |
-| 2 | FEKO 操作指南 | 待完成 |
+| 2 | FEKO 2025 操作指南 | `FEKO_操作步骤.md`、`plot_rcs_360.m` |
 | 3 | ISAR 成像程序（已用假数据验证） | `read_ffe.m`、`make_synthetic_ffe.m`、`ISAR_FEKO.m` |
 | 4 | 汇报材料 | 待完成 |
 

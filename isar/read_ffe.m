@@ -59,12 +59,16 @@ if numel(theta_all)>1
     error('read_ffe：检测到多个theta值(%s)，本程序只处理单一俯仰角的方位扫描。',mat2str(theta_all.'));
 end
 
-% 方位角：若跨越0°/360°（如355°~5°），把小角度加360°展开
-phi = data(:,3);
-if max(phi)-min(phi)>180
-    phi(phi<180) = phi(phi<180)+360;
+% 方位角：若扫描跨越0°/360°（如355°~5°），把0°之后的部分加360°展开。
+% 判断方法：把角度看成圆周上的点，最大的空隙才是扫描的“起止缺口”；
+% 若最大空隙不在360°->0°处，说明扫描跨过了0°。全方位扫描(0~359.5)不会被误展开。
+phi = mod(round(data(:,3)*1e6)/1e6,360); % 去掉文本舍入误差，统一到[0,360)
+phi_u = unique(phi);
+gap = [diff(phi_u);phi_u(1)+360-phi_u(end)]; % 最后一项为跨越360°的空隙
+[~,i_gap] = max(gap);
+if i_gap<numel(phi_u)
+    phi(phi<=phi_u(i_gap)) = phi(phi<=phi_u(i_gap))+360;
 end
-phi = round(phi*1e6)/1e6; % 去掉文本舍入误差
 f = data(:,1);
 
 [f_axis,~,i_f] = unique(f);
