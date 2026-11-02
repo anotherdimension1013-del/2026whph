@@ -16,15 +16,17 @@ if ~exist('design_params.mat','file'); design_params; close all; end
 load('design_params.mat');
 
 %% 点散射体：目标坐标系（FEKO全局坐标），每行[x(m)，y(m)，幅度]
-% 位置取在卫星模型的典型散射中心上，并故意让幅度不对称，便于发现镜像翻转。
-NPosition = [ 0.75,  0.00, 1.00;   % 右侧帆板-本体二面角（最强）
-             -0.75,  0.00, 0.15;   % 左侧二面角（phi=300°时不在其反射区，弱）
-              0.75, -0.75, 0.50;   % 本体角点（朝向雷达）
-             -0.75, -0.75, 0.30;   % 本体角点
-              0.75,  0.75, 0.30;   % 本体角点
-              3.25,  0.00, 0.40;   % 右帆板端点
-             -3.25,  0.00, 0.25;   % 左帆板端点
-              0.00, -0.75, 0.35];  % 本体-y面中心（不对称校验点）
+% 自动取在模型俯视轮廓的四个端点、旋转中心和一个不对称校验点上；
+% 幅度故意各不相同，若图像发生镜像翻转，强弱分布会对不上，便于发现。
+pts = Model.outline_xy(~isnan(Model.outline_xy(:,1)),:);
+[~,i_xmax] = max(pts(:,1)); [~,i_xmin] = min(pts(:,1));
+[~,i_ymin] = min(pts(:,2)); [~,i_ymax] = max(pts(:,2));
+NPosition = [0,0,1.00;                 % 旋转中心（本体，最强）
+             pts(i_xmax,:),0.50;       % +x端点
+             pts(i_xmin,:),0.30;       % -x端点
+             pts(i_ymin,:),0.60;       % 最靠-y（朝向雷达）的点
+             pts(i_ymax,:),0.25;       % 最靠+y的点
+             0.25*L,-0.08*L,0.40];     % 不对称校验点
 Ntarget = size(NPosition,1);
 Position_x = NPosition(:,1);
 Position_y = NPosition(:,2);

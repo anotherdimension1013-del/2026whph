@@ -3,6 +3,8 @@
 《合成孔径雷达》课程大作业。FEKO 平面波单站扫频×扫角得到复数后向散射场 E(f, φ)，
 在 MATLAB 中做距离-多普勒（RD）与极坐标格式算法（PFA）成像。
 
+目标模型：RADARSAT-1（NASA 3D Resources，免版权，使用时注明来源），转换后的 STL 与俯视轮廓在 `model/`，转换脚本在 `tools/`（Python + trimesh/shapely）。
+
 | 阶段 | 内容 | 文件 |
 |---|---|---|
 | 1 | 方案与参数设计 | `阶段1_方案与参数设计.md`、`design_params.m`、`params_table.md` |

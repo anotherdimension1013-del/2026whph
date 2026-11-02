@@ -7,47 +7,52 @@
 %          雷达位于(0,-R0)，即FEKO中的方向 theta=90°, phi=270°。
 %          目标绕z轴顺时针转过theta角 <=> 目标不动、雷达方向逆时针转到 phi=270°+theta。
 %      本脚本只做参数计算与可行性检查，不生成回波。输出：命令行参数表、
-%      params_table.md、design_params.mat、figures/fig01_model_topview.png。
+%      params_table.md、design_params.mat、figures/fig00_model_3d.png、figures/fig01_model_topview.png。
 %}
 clc; clear; close all;
 
 %% 选项
-model_mode = 'satellite'; % 'satellite'：参数化卫星模型；'custom'：只给最大尺寸L（如下载的STL）
-L_custom = 8; % model_mode='custom'时使用的目标最大尺寸，m
+model_mode = 'radarsat1'; % 'radarsat1'：NASA RADARSAT-1模型（STL）；'satellite'：参数化箱体+双帆板卫星（备选）
+rho_design = 0.3; % 设计分辨率（距离、横向相同），m；决定带宽与总转角
 os_ua = 1.5; % 不模糊窗口相对目标尺寸的余量：c/(2*delta_f)>os_ua*L，lambda/(2*delta_phi)>os_ua*L
-phi_c_deg = 300; % 中心观测方位角（FEKO的phi），deg；270°为正对-y方向（太阳帆板镜面闪烁）
+phi_c_deg = 300; % 中心观测方位角（FEKO的phi），deg；270°为正对-y方向（平板镜面闪烁）
 theta_inc_deg = 90; % 雷达俯仰：FEKO的theta，90°表示雷达位于xy平面内（转台平面）
 pol_mode = 'VV'; % 'VV'：eta=0°，接收Etheta；'HH'：eta=90°，接收Ephi
-t_per_point = 1.0; % 每个(频点,角度)单站解的估计耗时，s；平板实测0.16 s/点，卫星按约6倍估计，试算后替换
+t_per_point = 1.0; % 每个(频点,角度)单站解的估计耗时，s；平板实测0.16 s/点，试算后替换
 
-%% 目标模型：参数化卫星（立方体本体 + 两块太阳帆板）
-% 本体：中心在原点的立方体，边长bus_a。
-% 帆板：零厚度PEC薄板，位于y=0平面（xz平面），法向为±y，直接贴在本体±x面上。
-%       帆板与本体侧面构成90°二面角（棱线沿z轴），雷达在xy平面内时为强散射中心。
-bus_a = 1.5; % 本体边长，m
-panel_len = 2.5; % 单块帆板沿x方向长度，m
-panel_wid = 1.2; % 帆板沿z方向宽度，m
+%% 目标模型
+% Model.outline_xy：俯视轮廓（xy平面投影），N×2，多个多边形之间用NaN行分隔，可直接plot。
+% Model.stl_file：STL文件（单位m，旋转中心在原点）；参数化模型为空。
 switch lower(model_mode)
+    case 'radarsat1'
+        % NASA 3D Resources的RADARSAT-1模型，由tools/convert_glb_to_stl.py转换：
+        % 缩放0.1（翼展约16 m），绕x轴转90°使SAR天线与太阳翼平板竖直（法向沿y），本体中心移到原点。
+        Model.stl_file = 'model/radarsat1_m.stl';
+        Model.outline_xy = load('model/radarsat1_outline_xy.txt'); % tools/make_outline.py生成
+        [F_stl,V_stl] = read_stl(Model.stl_file);
+        L = 2*max(sqrt(V_stl(:,1).^2+V_stl(:,2).^2)); % 绕z轴转动时扫过的最大直径，m
+        e1 = V_stl(F_stl(:,2),:)-V_stl(F_stl(:,1),:); e2 = V_stl(F_stl(:,3),:)-V_stl(F_stl(:,1),:);
+        area_total = sum(sqrt(sum(cross(e1,e2,2).^2,2)))/2; % 网格表面积，m^2
     case 'satellite'
-        L = bus_a+2*panel_len; % 目标最大尺寸（翼展），m
-        % 俯视轮廓（xy平面投影），每个部件一行多边形顶点，用于叠加到ISAR图像
-        Model.bus_xy = bus_a/2*[-1,-1; 1,-1; 1,1; -1,1; -1,-1];
-        Model.panel_r_xy = [bus_a/2,0; bus_a/2+panel_len,0]; % 右帆板投影为线段
-        Model.panel_l_xy = -Model.panel_r_xy; % 左帆板
-        Model.bus_a = bus_a; Model.panel_len = panel_len; Model.panel_wid = panel_wid;
-    case 'custom'
-        L = L_custom;
-        Model = struct();
+        % 本体：中心在原点的立方体，边长bus_a；帆板：y=0平面内的零厚度PEC薄板，贴在本体±x面上。
+        bus_a = 1.5; panel_len = 2.5; panel_wid = 1.2; % m
+        Model.stl_file = '';
+        Model.outline_xy = [bus_a/2*[-1,-1; 1,-1; 1,1; -1,1; -1,-1]; NaN,NaN;
+                            bus_a/2,0; bus_a/2+panel_len,0; NaN,NaN;
+                            -bus_a/2,0; -bus_a/2-panel_len,0];
+        L = bus_a+2*panel_len;
+        area_total = 6*bus_a^2+2*2*panel_len*panel_wid;
     otherwise
-        error('model_mode只能是satellite或custom。');
+        error('model_mode只能是radarsat1或satellite。');
 end
-target_radius = L/2; % 以本体中心为旋转中心时的最大半径，m（对称模型）
+Model.name = model_mode;
+target_radius = L/2; % 最大转动半径，m
 
 %% 电磁波与距离向参数（步进频）
 c = 3e8; % 光速，m/s
 f0 = 10e9; % 中心频率，Hz（X波段）
 lambda = c/f0; % 中心波长，m
-Br = 1e9; % 扫频带宽，Hz
+Br = c/(2*rho_design); % 扫频带宽，Hz
 rho_r = c/(2*Br); % 距离向理论分辨率，m（矩形窗）
 f_min = f0-Br/2; f_max = f0+Br/2; % 扫频起止，Hz
 lambda_min = c/f_max; % 最短波长，m，用于角度采样的保守设计
@@ -63,7 +68,7 @@ f_axis = f_min+(0:Nf-1)*delta_f; % 频率轴，Hz
 
 %% 方位向参数（转角）
 % 横向分辨率 rho_a = lambda/(2*theta_m)，令 rho_a ≈ rho_r
-res_a = rho_r; % 希望达到的横向分辨率，m
+res_a = rho_design; % 希望达到的横向分辨率，m
 theta_m = lambda/(2*res_a); % 所需总转角，rad
 theta_m_deg = ceil(theta_m*180/pi*2)/2; % 向上取到0.5°，便于在FEKO中填写
 theta_m = theta_m_deg*pi/180;
@@ -95,11 +100,7 @@ end
 %% RD适用性检查（与ISAR_RD.m相同的两项，外加带宽引起的横向尺度变化）
 % 目标在中心视角下的投影：目标顺时针转theta_c后的(x,y)
 theta_c = (phi_c_deg-270)*pi/180;
-if strcmpi(model_mode,'satellite')
-    pts = [Model.bus_xy; Model.panel_r_xy; Model.panel_l_xy];
-else
-    pts = target_radius*[1,0; -1,0; 0,1; 0,-1];
-end
+pts = Model.outline_xy(~isnan(Model.outline_xy(:,1)),:); % 轮廓顶点
 x_img = pts(:,1)*cos(theta_c)+pts(:,2)*sin(theta_c);
 y_img = -pts(:,1)*sin(theta_c)+pts(:,2)*cos(theta_c);
 x_max = max(abs(x_img)); y_max = max(abs(y_img));
@@ -115,11 +116,6 @@ N_total = Nf*Naz; % 主扫描单站解个数
 N_rcs_cut = numel(0:0.5:360); % 附加：f0单频、phi全方位0.5°步进的RCS曲线
 T_est_h = (N_total+N_rcs_cut)*t_per_point/3600; % 估计总耗时，h
 % 全波（MoM/MLFMM）网格估算：表面积 / 单个三角形面积（边长lambda_min/8）
-if strcmpi(model_mode,'satellite')
-    area_total = 6*bus_a^2+2*2*panel_len*panel_wid; % 本体6面+帆板两面，m^2
-else
-    area_total = NaN;
-end
 edge_len = lambda_min/8; % MoM推荐网格边长
 N_tri_MoM = area_total/(sqrt(3)/4*edge_len^2); % 三角形个数
 N_unk_MoM = 1.5*N_tri_MoM; % RWG未知量≈1.5×三角形数
@@ -175,45 +171,56 @@ fprintf(fid,'| 距离分辨率 | ρr = c/(2Br) | %.3f m | 矩形窗 |\n',rho_r);
 fprintf(fid,'| 横向分辨率 | ρa = λ0/(2θm) | %.3f m | 矩形窗 |\n',rho_a);
 fprintf(fid,'| 极化 | | %s | 平面波 η=%d°，接收 %s |\n',upper(pol_mode),eta_deg,E_comp);
 fprintf(fid,'| 雷达俯仰 | θ | %d° | 雷达在转台平面内 |\n',theta_inc_deg);
+fprintf(fid,'| 中心方位 | φc | %.1f° | 相对 -y 方向转过 %.1f° |\n',phi_c_deg,phi_c_deg-270);
 fprintf(fid,'| 单站解总数 | Nf×Naz | %d | 另加 RCS 曲线 %d 点 |\n',N_total,N_rcs_cut);
 fclose(fid);
 save('design_params.mat','c','f0','lambda','Br','rho_r','delta_f','Nf','f_axis',...
     'theta_m','theta_m_deg','delta_phi_deg','Naz','phi_axis_deg','phi_c_deg',...
     'theta_inc_deg','pol_mode','eta_deg','E_comp','rho_a','R_ua','X_ua','L','Model','model_mode');
 
+if ~exist('figures','dir'); mkdir('figures'); end
+
+
 % 顺时针转动th（同ISAR_RD.m）：x'=x*cos+y*sin, y'=-x*sin+y*cos
 rot_x = @(xy,th) xy(:,1)*cos(th)+xy(:,2)*sin(th);
 rot_y = @(xy,th) -xy(:,1)*sin(th)+xy(:,2)*cos(th);
 
-%% 图1：模型俯视图与雷达视线（雷达位于图的下方，与ISAR_RD.m一致）
-if ~exist('figures','dir'); mkdir('figures'); end
-figure('Name','模型俯视图与观测几何','Color','w');
-subplot(1,2,1); hold on;
-if strcmpi(model_mode,'satellite')
-    fill(Model.bus_xy(:,1),Model.bus_xy(:,2),[0.8,0.8,0.8]);
-    plot(Model.panel_r_xy(:,1),Model.panel_r_xy(:,2),'b-','LineWidth',3);
-    plot(Model.panel_l_xy(:,1),Model.panel_l_xy(:,2),'b-','LineWidth',3);
-    plot(bus_a/2*[1,-1],[0,0],'rp','MarkerSize',12,'MarkerFaceColor','r'); % 二面角棱线
+%% 图0：三维模型（汇报用）
+if ~isempty(Model.stl_file)
+    figure('Name','三维模型','Color','w','Position',[100,100,900,420]);
+    view_list = [-35,25; 0,90]; % 斜视图、俯视图
+    title_list = {'RADARSAT-1模型（NASA 3D Resources）','俯视图（xy平面，即ISAR成像平面）'};
+    for k = 1:2
+        subplot(1,2,k);
+        patch('Faces',F_stl,'Vertices',V_stl,'FaceColor',[0.75,0.78,0.85],...
+            'EdgeColor',[0.35,0.35,0.45],'LineWidth',0.1);
+        axis equal; grid on; box on; view(view_list(k,:));
+        camlight headlight; lighting gouraud;
+        xlabel('x / m'); ylabel('y / m'); zlabel('z / m'); title(title_list{k});
+    end
+    print(gcf,'-dpng','-r300','figures/fig00_model_3d.png');
 end
+
+%% 图1：模型俯视图与雷达视线（雷达位于图的下方，与ISAR_RD.m一致）
+figure('Name','模型俯视图与观测几何','Color','w','Position',[100,100,900,420]);
+subplot(1,2,1); hold on;
+plot(Model.outline_xy(:,1),Model.outline_xy(:,2),'b-','LineWidth',1.5);
 % 雷达方向：从原点指向phi方向
 phi_line = [phi_start_deg,phi_c_deg,phi_end_deg]*pi/180;
 for k = 1:3
-    plot([0,0.9*L*cos(phi_line(k))],[0,0.9*L*sin(phi_line(k))],'k--');
+    plot([0,0.8*L*cos(phi_line(k))],[0,0.8*L*sin(phi_line(k))],'k--');
 end
-text(0.95*L*cos(phi_c_deg*pi/180),0.95*L*sin(phi_c_deg*pi/180),'雷达方向');
+text(0.8*L*cos(phi_c_deg*pi/180),0.8*L*sin(phi_c_deg*pi/180),' 雷达方向');
+plot(0,0,'r+','MarkerSize',10,'LineWidth',1.5); % 旋转中心
 hold off; axis equal; grid on; box on;
-xlim(0.8*L*[-1,1]); ylim(L*[-1,0.6]);
+xlim(0.65*L*[-1,1]); ylim(0.8*L*[-1,0.4]);
 xlabel('x / m（FEKO全局坐标）'); ylabel('y / m');
-title('目标坐标系：红星为帆板-本体二面角');
-subplot(1,2,2); hold on;
+title('目标坐标系（红十字为旋转中心）');
+subplot(1,2,2);
 % 中心视角下的ISAR坐标：目标顺时针转theta_c
-if strcmpi(model_mode,'satellite')
-    plot(rot_x(Model.bus_xy,theta_c),rot_y(Model.bus_xy,theta_c),'k-','LineWidth',2);
-    plot(rot_x(Model.panel_r_xy,theta_c),rot_y(Model.panel_r_xy,theta_c),'b-','LineWidth',2);
-    plot(rot_x(Model.panel_l_xy,theta_c),rot_y(Model.panel_l_xy,theta_c),'b-','LineWidth',2);
-end
-hold off; axis equal; grid on; box on;
-xlim(0.7*L*[-1,1]); ylim(0.7*L*[-1,1]);
+plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'b-','LineWidth',1.5);
+axis equal; grid on; box on;
+xlim(0.6*L*[-1,1]); ylim(0.6*L*[-1,1]);
 xlabel('横向x / m'); ylabel('距离向y / m（远离雷达为正）');
-title(sprintf('中心视角phi=%.0f°下的ISAR坐标',phi_c_deg));
+title(sprintf('中心视角phi=%.0f°下的ISAR坐标（雷达在下方）',phi_c_deg));
 print(gcf,'-dpng','-r300','figures/fig01_model_topview.png');

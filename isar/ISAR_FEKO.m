@@ -171,9 +171,7 @@ figure('Name','ISAR RD图像','Color','w','Position',[100,100,620,520]);
 imagesc(x_image,y_image,Image_dB); axis xy; axis equal; axis tight;
 hold on;
 if has_model
-    plot(rot_x(Model.bus_xy,theta_c),rot_y(Model.bus_xy,theta_c),'w-','LineWidth',1.2);
-    plot(rot_x(Model.panel_r_xy,theta_c),rot_y(Model.panel_r_xy,theta_c),'w-','LineWidth',1.2);
-    plot(rot_x(Model.panel_l_xy,theta_c),rot_y(Model.panel_l_xy,theta_c),'w-','LineWidth',1.2);
+    plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'w-','LineWidth',0.8);
 end
 if has_truth; plot(x_true,y_true,'wo','MarkerSize',8,'LineWidth',1); end
 hold off;
@@ -187,13 +185,13 @@ print(gcf,'-dpng','-r300','figures/fig04_RD_image.png');
 if enable_pfa
     % 放大中心：取模型轮廓上离旋转中心最远的点（帆板端点）
     if has_model
-        pts = [Model.panel_r_xy;Model.panel_l_xy;Model.bus_xy];
+        pts = Model.outline_xy(~isnan(Model.outline_xy(:,1)),:);
     else
         pts = [x_lim(2),0];
     end
-    [~,i_far] = max(abs(rot_x(pts,theta_c))); % 横向最远点
+    [~,i_far] = max(abs(rot_x(pts,theta_c))); % 横向最远点（RD散焦最明显）
     zoom_c = [rot_x(pts(i_far,:),theta_c),rot_y(pts(i_far,:),theta_c)];
-    zoom_w = 0.8; % 放大窗口半宽，m
+    zoom_w = 0.06*L; % 放大窗口半宽，m
     figure('Name','RD与PFA对比','Color','w','Position',[100,100,900,800]);
     img_list = {Image_dB,Image_pfa_dB};
     name_list = {'RD（小转角近似）','PFA（极坐标插值）'};
@@ -202,9 +200,7 @@ if enable_pfa
         imagesc(x_image,y_image,img_list{mod(k-1,2)+1}); axis xy; axis equal; axis tight;
         hold on;
         if has_model
-            plot(rot_x(Model.bus_xy,theta_c),rot_y(Model.bus_xy,theta_c),'w-');
-            plot(rot_x(Model.panel_r_xy,theta_c),rot_y(Model.panel_r_xy,theta_c),'w-');
-            plot(rot_x(Model.panel_l_xy,theta_c),rot_y(Model.panel_l_xy,theta_c),'w-');
+            plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'w-','LineWidth',0.8);
         end
         if has_truth; plot(x_true,y_true,'wo','MarkerSize',8); end
         if k<=2

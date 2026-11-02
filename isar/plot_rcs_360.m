@@ -6,7 +6,7 @@
 clc; clear; close all;
 
 %% 选项
-ffe_file = 'data/satellite_rcs360_Monostatic.ffe'; % 改成自己导出的文件名
+ffe_file = 'data/radarsat1_rcs360_Monostatic.ffe'; % 改成自己导出的文件名
 E_comp = 'Etheta'; % 'Etheta'：VV；'Ephi'：HH
 if ~exist('figures','dir'); mkdir('figures'); end
 
