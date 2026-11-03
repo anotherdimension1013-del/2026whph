@@ -46,8 +46,11 @@
     - 勾选 **Calculate fields in plane wave incident direction**（平板测试已验证）
     - ⚠ **Advanced** 页：勾选 **Export fields to ASCII file (\*.ffe)**。这样求解时会直接生成 MATLAB 要读的 .ffe 文件
     - Label：`Monostatic`
-10. ⚠ **RL-GO 反射次数**：*Solve/Run* 选项卡 → **Solver Settings**，找到 RL-GO 相关设置，确认最大反射次数（ray interactions）**≥ 2**。
-    天线背面的桁架、太阳翼与本体之间会形成二面角（两次反射），反射次数为 1 时会漏掉这些散射中心。默认值通常已满足；拿不准就截图给我。
+10. **RL-GO 设置**（已在 Feko 2025 界面核对）：*Solve/Run* 选项卡 → **Solver Settings** → **High frequency** 页 → *RL-GO settings*，保持默认：
+    - **Maximum number of ray interactions：不勾选**（不限制反射次数，二面角、桁架的多次反射都会计入）
+    - **Include edge and wedge diffractions：勾选**（计及棱边/劈绕射，天线和太阳翼的边缘回波更真实）
+    - **Activate enhancements for complex structures：勾选**
+    - 射线密度 **Adaptive → Normal (default)**；试算耗时很短的话，正式求解可改为 High
 11. 右上角 *Model Status* 应显示 **Model is valid**。
 
 ## 3. 试算 → 正式求解
