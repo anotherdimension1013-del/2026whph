@@ -27,3 +27,14 @@
   **数据不需要取共轭**，频率维 IFFT 得距离 y（远离雷达为正），方位维 FFT 得横向 x。
 - 误取共轭 → 图像绕原点翻转 180°；方位顺序取反 → 左右镜像（见 `figures/fig06_sign_check.png`）。
 - 横向定标 x = λ0·f_θ/2（f_θ 为对转角做 FFT 的“角频率”，周/rad），等价于 x = λ0·f_D/(2Ω)。
+
+## 汇报实验（三组对比）
+
+| 脚本 | 内容 | 输出 |
+|---|---|---|
+| `plot_principle.m` | 转台等效与扇形数据示意（第 3 页） | `fig_p03_turntable.png` |
+| `ISAR_FEKO.m`（`data_mode='B'`） | RD 与 PFA 对比（第 6 页） | `fig05_RD_vs_PFA_B.png` |
+| `ISAR_experiments.m` | 俯仰、融合、分辨率三组对比与散射机理（第 7–10 页） | `fig_p07`～`fig_p10`、`results_metrics.md` |
+
+函数：`bp_image.m`（后向投影，目标坐标系，计入俯仰）、`isar_metrics.m`（散射中心个数、轮廓覆盖率）、`peak_width.m`、`show_img.m`。
+需要的数据：`data/radarsat1_C_low.ffe`（E0）、`data/radarsat1_A.ffe`、`data/radarsat1_B.ffe`（FEKO 计算 A、B）。

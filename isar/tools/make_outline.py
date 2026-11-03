@@ -1,10 +1,17 @@
 # 由STL生成xy平面投影轮廓（俯视图），供MATLAB叠加到ISAR图像
 # 输出：每行 "x y"，不同多边形之间用 "NaN NaN" 分隔，MATLAB可直接 plot(xy(:,1),xy(:,2))
-# 用法：python3 make_outline.py model.stl outline.txt
+# 用法：python3 make_outline.py model.stl outline.txt [俯仰角eps_deg 中心方位phi_c_deg]
+# 给出俯仰角时计入叠掩：高度z的点在水平面图像上沿雷达方向(cos φc, sin φc)平移 z·tan(ε)
 import sys, numpy as np, trimesh
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 m = trimesh.load(sys.argv[1], force='mesh')
+if len(sys.argv) >= 5:
+    eps, phc = np.deg2rad(float(sys.argv[3])), np.deg2rad(float(sys.argv[4]))
+    v = m.vertices.copy()
+    v[:, 0] += v[:, 2] * np.tan(eps) * np.cos(phc)
+    v[:, 1] += v[:, 2] * np.tan(eps) * np.sin(phc)
+    m.vertices = v
 polys = []
 for t in m.vertices[m.faces][:, :, :2]:
     p = Polygon(t)

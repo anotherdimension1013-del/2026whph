@@ -14,12 +14,20 @@ script_dir = fileparts(mfilename('fullpath'));
 if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 选项
-data_mode = 'feko'; % 'feko'：FEKO仿真数据；'synthetic'：点散射体假数据（定标自检）
+data_mode = 'feko'; % 'feko'：E0数据；'B'：计算B；'synthetic'：点散射体假数据（定标自检）；'po_B'：PO预览（调试）
 switch data_mode
     case 'feko'
         ffe_file = 'data/radarsat1_C_low.ffe'; % FEKO导出的远场文件（5.3 GHz，RL-GO射线密度Low）
         truth_file = ''; % 真实数据没有“真实散射点”
         fig_tag = '';
+    case 'B'
+        ffe_file = 'data/radarsat1_B.ffe'; % 计算B：ε=30°，0.15 m（汇报第6页RD与PFA对比）
+        truth_file = '';
+        fig_tag = '_B';
+    case 'po_B'
+        ffe_file = 'data/po_B.ffe'; % 简化PO预览数据，仅用于调试
+        truth_file = '';
+        fig_tag = '_po_B';
     case 'synthetic'
         ffe_file = 'data/synthetic.ffe'; % make_synthetic_ffe.m生成
         truth_file = 'data/synthetic_truth.mat'; % 假数据的真实散射点
@@ -66,6 +74,11 @@ has_model = exist('design_params.mat','file')==2;
 if has_model
     D = load('design_params.mat','Model','L');
     Model = D.Model; L = D.L;
+    % 雷达抬高时叠加计入叠掩的轮廓（tools/make_outline.py 生成，目前有ε=30°、φc=300°）
+    outline_file = sprintf('model/radarsat1_outline_eps%d_phi%d.txt',round(epsilon_deg),round(phi_c_deg));
+    if round(epsilon_deg)~=0 && exist(outline_file,'file')==2
+        Model.outline_xy = load(outline_file);
+    end
 else
     L = min(R_ua,X_ua)/1.5;
 end
