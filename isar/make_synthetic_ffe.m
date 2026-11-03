@@ -10,6 +10,9 @@
 %      这里用精确公式（每个频点各自的k），不做小角度近似。
 %}
 clc; clear; close all;
+% 切换到本脚本所在文件夹：保证read_stl/read_ffe等函数和model、data、figures等相对路径都能找到
+script_dir = fileparts(mfilename('fullpath'));
+if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 读取参数设计结果（频率、方位扫描与design_params.m完全一致）
 if ~exist('design_params.mat','file'); design_params; close all; end

@@ -4,6 +4,9 @@
 %      输出：figures/fig07_rcs_360.png（直角坐标 + 极坐标）
 %}
 clc; clear; close all;
+% 切换到本脚本所在文件夹：保证read_stl/read_ffe等函数和model、data、figures等相对路径都能找到
+script_dir = fileparts(mfilename('fullpath'));
+if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 选项
 ffe_file = 'data/radarsat1_rcs360_Monostatic.ffe'; % 改成自己导出的文件名

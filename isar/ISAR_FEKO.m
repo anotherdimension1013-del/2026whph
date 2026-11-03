@@ -9,6 +9,9 @@
 %      Phase_a同号，因此无需取共轭；若误取共轭，图像会绕原点翻转180°（见图5）。
 %}
 clc; clear; close all;
+% 切换到本脚本所在文件夹：保证read_stl/read_ffe等函数和model、data、figures等相对路径都能找到
+script_dir = fileparts(mfilename('fullpath'));
+if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 选项
 ffe_file = 'data/synthetic.ffe'; % FEKO导出的远场文件；真实数据改为自己的文件名

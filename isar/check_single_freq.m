@@ -9,6 +9,9 @@
 %      输出：figures/fig08_single_freq_xprofile.png
 %}
 clc; clear; close all;
+% 切换到本脚本所在文件夹：保证read_stl/read_ffe等函数和model、data、figures等相对路径都能找到
+script_dir = fileparts(mfilename('fullpath'));
+if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 选项
 ffe_file = 'data/radarsat1_trial_10GHz.ffe'; % 单频试算导出的.ffe

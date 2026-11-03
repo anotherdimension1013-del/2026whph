@@ -10,6 +10,9 @@
 %      params_table.md、design_params.mat、figures/fig00_model_3d.png、figures/fig01_model_topview.png。
 %}
 clc; clear; close all;
+% 切换到本脚本所在文件夹：保证read_stl/read_ffe等函数和model、data、figures等相对路径都能找到
+script_dir = fileparts(mfilename('fullpath'));
+if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 选项
 model_mode = 'radarsat1'; % 'radarsat1'：NASA RADARSAT-1模型（STL）；'satellite'：参数化箱体+双帆板卫星（备选）
