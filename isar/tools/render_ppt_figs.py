@@ -1,7 +1,10 @@
 """汇报PPT用图：读取 ISAR_experiments.m 保存的 results_images<tag>.mat，
 按白色背景、大字号、无标题（标题写在PPT里）重新绘制各张ISAR图像。
 
-用法：python tools/render_ppt_figs.py [tag]   tag 缺省为 _po（简化PO预览数据）；FEKO数据用空字符串 ""
+用法：python tools/render_ppt_figs.py [图像tag] [算法对比tag]
+  图像tag：读取 results_images<tag>.mat（ISAR_experiments.m），缺省 _po；FEKO 数据用空字符串 ""
+  算法对比tag：读取 results_algo<tag>_B.mat（ISAR_FEKO.m 的B数据），缺省与图像tag相同
+  哪个文件不存在就跳过哪一部分
 输出：ppt/fig/*.png
 """
 import sys
@@ -16,6 +19,7 @@ from scipy.io import loadmat
 
 ROOT = Path(__file__).resolve().parents[1]
 TAG = sys.argv[1] if len(sys.argv) > 1 else "_po"
+ALGO_TAG = sys.argv[2] if len(sys.argv) > 2 else TAG
 OUT = ROOT / "ppt" / "fig"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -32,8 +36,6 @@ CYAN = "#4DD9FF"    # 模型轮廓
 GREEN = "#7CFF9B"   # 散射中心标注
 DR = 25             # 显示动态范围，dB
 
-D = loadmat(ROOT / f"results_images{TAG}.mat", squeeze_me=True, struct_as_record=False)
-lims = D["lims"]
 
 
 def axes_style(ax, show_y=True):
@@ -46,17 +48,18 @@ def axes_style(ax, show_y=True):
         ax.set_ylabel("y / m", color=FG, fontsize=13)
 
 
-def show(img, x, y, outline, fname, lim=lims, size=(7.0, 3.3), marks=None, cbar=False):
+def show(img, x, y, outline, fname, lim=None, size=(7.0, 3.3), marks=None, cbar=False, dr=DR):
     """一张ISAR图像：hot色图，-25~0 dB，叠加模型轮廓"""
     fig, ax = plt.subplots(figsize=size, facecolor=BG)
-    im = ax.imshow(np.clip(img, -DR, 0), extent=[x[0], x[-1], y[0], y[-1]], origin="lower",
-                   cmap="hot", vmin=-DR, vmax=0, interpolation="bilinear", aspect="equal")
+    im = ax.imshow(np.clip(img, -dr, 0), extent=[x[0], x[-1], y[0], y[-1]], origin="lower",
+                   cmap="hot", vmin=-dr, vmax=0, interpolation="bilinear", aspect="equal")
     ax.plot(outline[:, 0], outline[:, 1], color=CYAN, lw=0.8, alpha=0.9)
     if marks is not None:
         for k, (px, py) in enumerate(marks, 1):
             ax.plot(px, py, "o", mfc="none", mec=GREEN, ms=13, mew=1.8)
             ax.text(px + 0.28, py + 0.22, str(k), color=GREEN, fontsize=15, fontweight="bold")
-    ax.set_xlim(lim[0], lim[1]); ax.set_ylim(lim[2], lim[3])
+    if lim is not None:
+        ax.set_xlim(lim[0], lim[1]); ax.set_ylim(lim[2], lim[3])
     axes_style(ax)
     if cbar:
         cb = fig.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
@@ -67,31 +70,38 @@ def show(img, x, y, outline, fname, lim=lims, size=(7.0, 3.3), marks=None, cbar=
     plt.close(fig)
 
 
-xa, ya = D["x_axis"], D["y_axis"]
-xc, yc = D["x_coh"], D["y_coh"]
-xf, yf = D["x_fine"], D["y_fine"]
-o0, o30 = D["outline_0"], D["outline_30"]
+img_file = ROOT / f"results_images{TAG}.mat"
+if img_file.exists():
+    D = loadmat(img_file, squeeze_me=True, struct_as_record=False)
+    lims = D["lims"]
+    xa, ya = D["x_axis"], D["y_axis"]
+    xc, yc = D["x_coh"], D["y_coh"]
+    xf, yf = D["x_fine"], D["y_fine"]
+    o0, o30 = D["outline_0"], D["outline_30"]
 
-# 封面：几何平均融合图
-show(D["Image_Afu"], xa, ya, o30, "cover_fusion.png", size=(10, 4.6))
-# 第7页：俯仰角对比
-show(D["Image_E0"], xa, ya, o0, "eps0.png")
-show(D["Image_Ac"], xa, ya, o30, "eps30.png")
-# 第8页：四种处理方式
-show(D["Image_Ac"], xa, ya, o30, "fu_single.png", size=(5.4, 2.6))
-show(D["Image_Acoh"], xc, yc, o30, "fu_coh.png", size=(5.4, 2.6))
-show(D["Image_Amean"], xa, ya, o30, "fu_mean.png", size=(5.4, 2.6))
-show(D["Image_Afu"], xa, ya, o30, "fu_geo.png", size=(5.4, 2.6))
-# 第9页：分辨率（全图 + 最强点局部放大）
-show(D["Image_Ac"], xa, ya, o30, "res_030.png")
-show(D["Image_B"], xf, yf, o30, "res_015.png")
-pk = np.atleast_1d(D["pk_A"])
-zl = [pk[0] - 0.8, pk[0] + 0.8, pk[1] - 0.8, pk[1] + 0.8]
-show(D["Image_Ac"], xa, ya, o30, "zoom_030.png", lim=zl, size=(3.2, 3.2))
-show(D["Image_B"], xf, yf, o30, "zoom_015.png", lim=zl, size=(3.2, 3.2))
-# 第10页：散射中心标注
-pks = np.atleast_2d(D["pk"])
-show(D["Image_Afu"], xa, ya, o30, "scatter.png", size=(8.2, 3.8), marks=pks[:, :2], cbar=True)
+    # 封面：几何平均融合图
+    show(D["Image_Afu"], xa, ya, o30, "cover_fusion.png", size=(10, 4.6), lim=lims)
+    # 第7页：俯仰角对比
+    show(D["Image_E0"], xa, ya, o0, "eps0.png", lim=lims)
+    show(D["Image_Ac"], xa, ya, o30, "eps30.png", lim=lims)
+    # 第8页：四种处理方式
+    show(D["Image_Ac"], xa, ya, o30, "fu_single.png", size=(5.4, 2.6), lim=lims)
+    show(D["Image_Acoh"], xc, yc, o30, "fu_coh.png", size=(5.4, 2.6), lim=lims)
+    show(D["Image_Amean"], xa, ya, o30, "fu_mean.png", size=(5.4, 2.6), lim=lims)
+    show(D["Image_Afu"], xa, ya, o30, "fu_geo.png", size=(5.4, 2.6), lim=lims)
+    # 第9页：分辨率（全图 + 最强点局部放大）
+    show(D["Image_Ac"], xa, ya, o30, "res_030.png", lim=lims)
+    show(D["Image_B"], xf, yf, o30, "res_015.png", lim=lims)
+    pk = np.atleast_1d(D["pk_A"])
+    zl = [pk[0] - 0.8, pk[0] + 0.8, pk[1] - 0.8, pk[1] + 0.8]
+    show(D["Image_Ac"], xa, ya, o30, "zoom_030.png", lim=zl, size=(3.2, 3.2))
+    show(D["Image_B"], xf, yf, o30, "zoom_015.png", lim=zl, size=(3.2, 3.2))
+    # 第10页：散射中心标注
+    pks = np.atleast_2d(D["pk"])
+    show(D["Image_Afu"], xa, ya, o30, "scatter.png", size=(8.2, 3.8), marks=pks[:, :2], cbar=True, lim=lims)
+    print("ISAR图像已输出到", OUT)
+else:
+    print("跳过ISAR图像：找不到", img_file.name)
 
 # 色标单独一张（各页共用）
 fig = plt.figure(figsize=(0.9, 3.0), facecolor=BG)
@@ -101,14 +111,15 @@ cb.ax.tick_params(colors=FG, labelsize=12); cb.outline.set_edgecolor("#8A949E")
 cb.set_label("dB", color=FG, fontsize=12)
 fig.savefig(OUT / "colorbar.png", dpi=250, facecolor=BG)
 plt.close(fig)
-print("已输出到", OUT)
 
 # 第6页：同一份B数据上RD、PFA、BP三种算法的局部放大（ISAR_FEKO.m 保存 results_algo<tag>_B.mat）
-algo_file = ROOT / f"results_algo{TAG}_B.mat"
+algo_file = ROOT / f"results_algo{ALGO_TAG}_B.mat"
 if algo_file.exists():
     G = loadmat(algo_file, squeeze_me=True, struct_as_record=False)
     zc, zw = np.atleast_1d(G["zoom_c"]), float(G["zoom_w"])
     zl = [zc[0] - zw, zc[0] + zw, zc[1] - zw, zc[1] + zw]
+    ref = float(G["zoom_ref"]) if "zoom_ref" in G else 0.0  # 按放大点自身峰值归一化
     for img, name in zip(G["img_list"], ["alg_rd.png", "alg_pfa.png", "alg_bp.png"]):
-        show(img, G["x_image"], G["y_image"], G["outline_rot"], name, lim=zl, size=(3.4, 3.4))
-    print("算法对比：光斑面积", G["spot_alg"], "用时", G["t_alg"])
+        show(img - ref, G["x_image"], G["y_image"], G["outline_rot"], name, lim=zl, size=(3.4, 3.4),
+             dr=15)  # 远处的点在杂波中，放大图用15 dB动态范围突出光斑
+    print("算法对比：光斑面积", G["spot_alg"], "峰值", G.get("peak_alg"), "用时", G["t_alg"])

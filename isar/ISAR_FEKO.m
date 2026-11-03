@@ -42,6 +42,7 @@ dynamic_range_dB = 25; % 图像显示动态范围，不改变成像结果；25 d
 cmap = hot(256); % 图像色图：hot（黑底，接近雷达图像的常用显示）；也可改为jet(256)
 outline_color = [0.3,0.85,1]; % 模型轮廓线颜色（青色）
 enable_pfa = true; % 是否做PFA并与RD对比
+zoom_thr_dB = -30; % 放大点的门限：在PFA图中取该门限以上、离中心最远的峰值
 enable_bp = true; % 是否在同一网格上做BP，与RD、PFA三者对比（需enable_pfa）
 if ~exist('figures','dir'); mkdir('figures'); end
 
@@ -239,15 +240,29 @@ print(gcf,'-dpng','-r300',['figures/fig04_ISAR_image',fig_tag,'.png']);
 %% 图4：RD与PFA对比（上：全图；下：离旋转中心最远处的局部放大）
 % RD假设小转角、窄带：离中心越远，距离徙动和二次相位越大，RD越散焦；PFA可校正。
 if enable_pfa
-    % 放大中心：-10 dB以上的强散射点中，横向离中心最远的一个（RD散焦最明显）
+    % 放大中心：PFA图中zoom_thr_dB以上、落在卫星上的峰值里，离旋转中心最远的一个（RD散焦最明显）。
+    % 用PFA图找点：PFA已校正徙动，峰位置准确。FEKO数据常被少数镜面强点主导，
+    % 远处的散射点只有-25~-30 dB，所以门限取-30 dB，放大图按该点自身的峰值归一化显示。
     [XI,YI] = meshgrid(x_image,y_image);
-    Img_max = Image_dB;
+    Img_max = Image_pfa_dB;
     for k_shift = [-1,1] % 3×3邻域局部极大值
-        Img_max = max(Img_max,circshift(Image_dB,k_shift,1));
-        Img_max = max(Img_max,circshift(Image_dB,k_shift,2));
+        Img_max = max(Img_max,circshift(Image_pfa_dB,k_shift,1));
+        Img_max = max(Img_max,circshift(Image_pfa_dB,k_shift,2));
     end
-    is_peak = Image_dB>=Img_max & Image_dB>-10;
-    [~,i_far] = max(abs(XI(is_peak)));
+    is_peak = Image_pfa_dB>=Img_max & Image_pfa_dB>zoom_thr_dB;
+    if has_model % 只取落在卫星上（离模型轮廓0.5 m以内）的峰，排除轮廓外的弱虚假点
+        o_rot = [rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c)];
+        o_pts = zeros(0,2); % 轮廓加密：每段按0.05 m插点
+        for k = 1:size(o_rot,1)-1
+            if any(isnan(o_rot(k,:))) || any(isnan(o_rot(k+1,:))); continue; end
+            n_seg = max(1,ceil(norm(o_rot(k+1,:)-o_rot(k,:))/0.05));
+            o_pts = [o_pts; o_rot(k,:)+((0:n_seg-1).'/n_seg)*(o_rot(k+1,:)-o_rot(k,:))]; %#ok<AGROW>
+        end
+        idx_pk = find(is_peak);
+        d2 = bsxfun(@minus,XI(idx_pk),o_pts(:,1).').^2+bsxfun(@minus,YI(idx_pk),o_pts(:,2).').^2;
+        is_peak(idx_pk(min(d2,[],2)>0.5^2)) = false;
+    end
+    [~,i_far] = max(hypot(XI(is_peak),YI(is_peak)));
     x_pk = XI(is_peak); y_pk = YI(is_peak);
     zoom_c = [x_pk(i_far),y_pk(i_far)];
     zoom_w = 0.06*L; % 放大窗口半宽，m
@@ -257,6 +272,8 @@ if enable_pfa
         img_list{3} = Image_bp_dB; name_list{3} = 'BP（后向投影）';
     end
     n_alg = numel(img_list);
+    in_zoom = abs(XI-zoom_c(1))<=zoom_w & abs(YI-zoom_c(2))<=zoom_w;
+    zoom_ref = max(Image_pfa_dB(in_zoom)); % 放大图的0 dB参考：PFA在该点的峰值
     figure('Name','RD、PFA、BP对比','Color','w','Position',[100,100,450*n_alg,800]);
     for k = 1:2*n_alg
         subplot(2,n_alg,k);
@@ -275,31 +292,32 @@ if enable_pfa
         end
         hold off;
         xlabel('横向x / m'); ylabel('距离向y / m');
-        colormap(cmap); caxis([-dynamic_range_dB,0]); colorbar;
+        colormap(cmap); colorbar;
+        if k<=n_alg; caxis([-dynamic_range_dB,0]); else; caxis(zoom_ref+[-dynamic_range_dB,0]); end
     end
     colormap(cmap);
     print(gcf,'-dpng','-r300',['figures/fig05_RD_vs_PFA',fig_tag,'.png']);
-    % 定量：放大窗口内最强点的-3 dB光斑面积，以及各算法用时
-    in_zoom = abs(XI-zoom_c(1))<=zoom_w & abs(YI-zoom_c(2))<=zoom_w;
-    spot_alg = zeros(1,n_alg);
+    % 定量：放大窗口内最强点的-3 dB光斑面积、相对PFA的峰值损失，以及各算法用时
+    spot_alg = zeros(1,n_alg); peak_alg = zeros(1,n_alg);
     for k = 1:n_alg
         Ik = img_list{k};
-        [~,id] = max(Ik(:).*in_zoom(:)-1e3*(~in_zoom(:)));
+        [~,id] = max(Ik(:)-1e3*(~in_zoom(:)));
         spot_alg(k) = spot_area(Ik,x_image,y_image,[XI(id),YI(id)],1);
+        peak_alg(k) = Ik(id)-zoom_ref;
     end
     t_alg = [t_rd,t_pfa];
     if enable_bp; t_alg(3) = t_bp; end
-    fprintf('\n------- 算法对比（放大窗口内最强点） -------\n');
+    fprintf('\n------- 算法对比：放大点(%.2f, %.2f) m，离中心%.2f m -------\n',zoom_c,hypot(zoom_c(1),zoom_c(2)));
     for k = 1:n_alg
-        fprintf('%s：-3 dB光斑面积 %.3f m^2，用时 %.2f s\n',name_list{k},spot_alg(k),t_alg(k));
+        fprintf('%s：-3 dB光斑面积 %.3f m^2，峰值相对PFA %+.1f dB，用时 %.2f s\n',name_list{k},spot_alg(k),peak_alg(k),t_alg(k));
     end
     % 保存图像矩阵（供汇报PPT重新绘制）
     outline_rot = [];
     if has_model
         outline_rot = [rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c)];
     end
-    save(['results_algo',fig_tag,'.mat'],'img_list','name_list','x_image','y_image','zoom_c','zoom_w',...
-        'spot_alg','t_alg','outline_rot','-v7');
+    save(['results_algo',fig_tag,'.mat'],'img_list','name_list','x_image','y_image','zoom_c','zoom_w','zoom_ref',...
+        'spot_alg','peak_alg','t_alg','outline_rot','-v7');
 end
 
 %% 图5：正负号检查——正确约定 / 误取共轭 / 方位角顺序取反

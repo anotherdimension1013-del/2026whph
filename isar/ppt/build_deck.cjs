@@ -119,8 +119,8 @@ function placeholderBox(slide, x, y, w, h, text) {
     align: "center", margin: 0, isTextBox: true, objectName: "图片位置提示" });
 }
 // 数据来源小字（右下，页码左侧）
-function dataNote(slide) {
-  slide.addText("数据：简化 PO 预览（不计遮挡与多次反射）", { x: 7.2, y: 7.05, w: 4.8, h: 0.3,
+function dataNote(slide, text) {
+  slide.addText(text || "数据：简化 PO 预览（不计遮挡与多次反射）", { x: 7.2, y: 7.05, w: 4.8, h: 0.3,
     fontSize: 10, color: LABEL, align: "right", margin: 0, isTextBox: true, objectName: "数据来源" });
 }
 // 模板表格：黑色细边框，表头深蓝加粗，重点行浅青底青字
@@ -313,11 +313,11 @@ note(s, "目标是 RADARSAT-1，用 NASA 公开的三维模型。E0 是雷达与
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "实验" });
 section(s, "RESULTS");
 s.addText("结果①：三种算法对比，RD 在边缘散焦", { placeholder: "title" });
-dataNote(s);
+dataNote(s, "数据：FEKO 计算 B（ε = 30°，0.15 m，RL-GO，用时 3.1 h）");
 const ALG = [
-  { f: "alg_rd.png", t: "RD（小转角近似）", spot: "0.44", cost: "直接二维 FFT", c: RED },
-  { f: "alg_pfa.png", t: "PFA（极坐标插值）", spot: "0.042", cost: "插值 + FFT · 0.06 s", c: NAVY },
-  { f: "alg_bp.png", t: "BP（后向投影）", spot: "0.038", cost: "逐像素累加 · 10 s", c: NAVY },
+  { f: "alg_rd.png", t: "RD（小转角近似）", spot: "0.15", peak: "峰值 −4.0 dB", cost: "直接二维 FFT", c: RED },
+  { f: "alg_pfa.png", t: "PFA（极坐标插值）", spot: "0.052", peak: "峰值 0 dB（参考）", cost: "插值 + FFT · 0.06 s", c: NAVY },
+  { f: "alg_bp.png", t: "BP（后向投影）", spot: "0.046", peak: "峰值 +0.2 dB", cost: "逐像素累加 · 10 s", c: NAVY },
 ];
 const aw = 3.85, ag = 0.3;
 ALG.forEach((d, i) => {
@@ -328,14 +328,14 @@ ALG.forEach((d, i) => {
     { text: d.spot + " m²", options: { fontSize: 24, bold: true, color: i ? TEAL : RED } },
     { text: "  −3 dB 光斑", options: { fontSize: 13, color: GREY } },
   ], { x, y: 5.05, w: aw, h: 0.45, margin: 0, valign: "middle", isTextBox: true });
-  s.addText(d.cost, { x, y: 5.5, w: aw, h: 0.28, fontSize: 12, color: LABEL, margin: 0, isTextBox: true });
+  s.addText(d.peak + " · " + d.cost, { x, y: 5.5, w: aw, h: 0.28, fontSize: 12, color: LABEL, margin: 0, isTextBox: true });
 });
 body(s, [
-  "同一份 B 数据、同一网格上，RD 把离中心最远的点拉成 L 形拖尾，光斑是另外两种的 10 倍以上。",
+  "放大的是 SAR 天线端点，离中心约 7 m：RD 把它拉散，光斑约为另外两种的 3 倍，峰值低 4 dB。",
   "PFA 和 BP 都把它聚焦成一个点，位置一致，互相印证。",
   "PFA 快，BP 慢约两个数量级但不受转角限制，所以 60° 宽角数据改用 BP。",
 ], 0.6, 5.95, 12.15, 1.05, 15);
-note(s, "三种算法处理同一份 B 数据，放大的是离旋转中心最远的散射点，窗口约 2 米见方。边缘点的距离徙动约 1.65 米，RD 的小转角近似不再成立，这个点被拉成 L 形，-3 dB 光斑 0.44 平方米。PFA 和 BP 都恢复成一个点，约 0.04 平方米，而且位置相同。PFA 只要 0.06 秒，BP 要 10 秒，但 BP 没有转角限制，所以后面 60 度的宽角数据都用 BP。");
+note(s, "三种算法处理同一份 FEKO 计算的 B 数据，放大的是落在卫星上、离旋转中心最远的散射点，即 SAR 天线的端点，离中心约 7 米，窗口约 2 米见方，各图按该点自身的峰值归一化。转角 12.6 度时这个点的距离走动约 1.5 米，相当于 10 个分辨单元，RD 的小转角近似不再成立，点被拉散，-3 dB 光斑 0.15 平方米，峰值低 4 dB。PFA 和 BP 都恢复成一个点，约 0.05 平方米，而且位置相同。PFA 只要 0.06 秒，BP 要 10 秒，但 BP 没有转角限制，所以后面 60 度的宽角数据都用 BP。");
 
 // ============ 7 结果②：俯仰角 ============
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "实验" });
