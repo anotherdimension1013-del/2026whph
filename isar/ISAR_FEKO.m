@@ -30,13 +30,19 @@ end
 E_comp = 'Etheta'; % 'Etheta'：VV；'Ephi'：HH
 use_window = true; % true：距离、方位都加Hann窗，降低旁瓣但主瓣变宽
 pad_factor = 4; % 补零倍数：只加密显示网格，不提高分辨率
-dynamic_range_dB = 35; % 图像显示动态范围，不改变成像结果
+dynamic_range_dB = 25; % 图像显示动态范围，不改变成像结果；25 dB可压掉弱的数值噪声点
+cmap = hot(256); % 图像色图：hot（黑底，接近雷达图像的常用显示）；也可改为jet(256)
+outline_color = [0.3,0.85,1]; % 模型轮廓线颜色（青色）
 enable_pfa = true; % 是否做PFA并与RD对比
 if ~exist('figures','dir'); mkdir('figures'); end
 
 %% 读取数据与基本参数
 c = 3e8; % 光速，m/s
-[S_f_phi,f_axis,phi_axis_deg] = read_ffe(ffe_file,E_comp);
+[S_f_phi,f_axis,phi_axis_deg,ffe_info] = read_ffe(ffe_file,E_comp);
+% 雷达俯仰：theta=90°时雷达在xy平面内；theta<90°时斜视成像，
+% 空间频率在xy平面内的分量为K*sin(theta)，坐标除以sin(theta)即投影回水平面（地面投影）。
+theta_inc_deg = ffe_info.theta_deg;
+s_el = sin(theta_inc_deg*pi/180);
 [Nf,Naz] = size(S_f_phi);
 delta_f = mean(diff(f_axis)); % 频率步进，Hz
 f0 = (f_axis(1)+f_axis(end))/2; % 中心频率，Hz
@@ -49,10 +55,10 @@ theta_c = (phi_c_deg-270)*pi/180; % 中心视角相对-y方向的转角，rad
 theta_axis = (phi_axis_deg-phi_c_deg)*pi/180; % 相对转角，rad，对应ISAR_RD.m中的theta
 theta_m = Naz*delta_phi; % 总转角（等效孔径），rad
 
-rho_r = c/(2*Br); % 距离向理论分辨率（矩形窗），m
-rho_a = lambda/(2*theta_m); % 横向理论分辨率（矩形窗，课件公式），m
-R_ua = c/(2*delta_f); % 不模糊距离窗，m
-X_ua = c/f_axis(end)/(2*delta_phi); % 横向不模糊窗（最高频，最保守），m
+rho_r = c/(2*Br)/s_el; % 距离向理论分辨率（矩形窗，水平面投影），m
+rho_a = lambda/(2*theta_m)/s_el; % 横向理论分辨率（矩形窗，课件公式，水平面投影），m
+R_ua = c/(2*delta_f)/s_el; % 不模糊距离窗，m
+X_ua = c/f_axis(end)/(2*delta_phi)/s_el; % 横向不模糊窗（最高频，最保守），m
 
 % 卫星模型轮廓（design_params.m保存）：用于叠加核对
 has_model = exist('design_params.mat','file')==2;
@@ -98,8 +104,8 @@ print(gcf,'-dpng','-r300',['figures/fig02_raw_data_rcs',fig_tag,'.png']);
 % E(f)~exp(-j*4*pi*f*dR/c)，IFFT后峰值在dR处：远离雷达为正，与ISAR_RD.m一致。
 Nfft_r = 2^nextpow2(pad_factor*Nf);
 S1_r_theta = fftshift(ifft(bsxfun(@times,S_f_phi,Wr),Nfft_r,1),1);
-range_axis = (-Nfft_r/2:Nfft_r/2-1).'*c/(2*Nfft_r*delta_f); % 距离轴，m
-dr_image = c/(2*Nfft_r*delta_f); % 补零后的距离显示网格，m；不是分辨率
+range_axis = (-Nfft_r/2:Nfft_r/2-1).'*c/(2*Nfft_r*delta_f)/s_el; % 距离轴（水平面投影），m
+dr_image = c/(2*Nfft_r*delta_f)/s_el; % 补零后的距离显示网格，m；不是分辨率
 
 %% 图2：一维距离像随方位角的变化
 HRRP_dB = 20*log10(abs(S1_r_theta)/max(abs(S1_r_theta(:)))+eps);
@@ -107,7 +113,7 @@ y_lim = 0.6*L*[-1,1];
 figure('Name','一维距离像','Color','w','Position',[100,100,900,420]);
 subplot(1,2,1);
 imagesc(phi_axis_deg,range_axis,HRRP_dB); axis xy;
-ylim(y_lim); caxis([-dynamic_range_dB,0]); colorbar;
+ylim(y_lim); colormap(cmap); caxis([-dynamic_range_dB,0]); colorbar;
 xlabel('方位角\phi / deg'); ylabel('距离向y / m（远离雷达为正）');
 title('距离像随方位角变化 / dB');
 subplot(1,2,2);
@@ -115,7 +121,7 @@ plot(range_axis,HRRP_dB(:,idx0),'LineWidth',1.2); grid on;
 xlim(y_lim); ylim([-dynamic_range_dB,0]);
 xlabel('距离向y / m'); ylabel('归一化幅度 / dB');
 title(sprintf('\\phi=%.2f°的一维距离像',phi_c_deg));
-colormap(jet(256));
+colormap(cmap);
 print(gcf,'-dpng','-r300',['figures/fig03_range_profiles',fig_tag,'.png']);
 
 %% 横向成像（RD）：方位维加窗 + FFT
@@ -130,15 +136,15 @@ S_pad(:,idx_pad) = S_window;
 S_RD = fftshift(fft(ifftshift(S_pad,2),[],2),2);
 clear S_pad S_window;
 f_theta = (-Nfft_a/2:Nfft_a/2-1)/(Nfft_a*delta_phi); % 角频率，周/rad
-cross_range_axis = lambda*f_theta/2; % 横向轴，m
-dx_image = lambda/(2*Nfft_a*delta_phi); % 补零后横向显示网格，m；不是分辨率
+cross_range_axis = lambda*f_theta/2/s_el; % 横向轴（水平面投影），m
+dx_image = lambda/(2*Nfft_a*delta_phi)/s_el; % 补零后横向显示网格，m；不是分辨率
 
 %% PFA：极坐标 (K,theta) -> 直角坐标 (Kx,Ky)
 % 空间频率 K=4*pi*f/c。相位 -K*(R-R0) = K*sin(theta)*x - K*cos(theta)*y，
 % 令 Kx=K*sin(theta)，Ky=K*cos(theta)，则 E=sum A*exp(j*(Kx*x-Ky*y))：
 % 对Kx做FFT得x，对Ky做IFFT得y，正负号与RD完全一致。
 if enable_pfa
-    K_axis = 4*pi*f_axis(:)/c; % 列向量
+    K_axis = 4*pi*f_axis(:)/c*s_el; % 列向量：空间频率在xy平面内的分量
     % 取极坐标扇环内接的矩形：Kx范围由最小K的两端转角决定，Ky上限由最大K决定
     Kx_lo = K_axis(1)*tan(theta_axis(1));
     Kx_hi = K_axis(1)*tan(theta_axis(end));
@@ -180,19 +186,25 @@ if has_truth
     y_true = rot_y(T.NPosition(:,1:2),theta_c);
 end
 
-%% 图3：RD图像 + 模型轮廓
-figure('Name','ISAR RD图像','Color','w','Position',[100,100,620,520]);
-imagesc(x_image,y_image,Image_dB); axis xy; axis equal; axis tight;
+%% 图3：ISAR图像（开启PFA时显示PFA结果，否则显示RD结果）+ 模型轮廓
+if enable_pfa
+    Image_main = Image_pfa_dB; name_main = 'PFA';
+else
+    Image_main = Image_dB; name_main = 'RD';
+end
+figure('Name','ISAR图像','Color','w','Position',[100,100,640,540]);
+imagesc(x_image,y_image,Image_main); axis xy; axis equal; axis tight;
 hold on;
 if has_model
-    plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'w-','LineWidth',0.8);
+    plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'-','Color',outline_color,'LineWidth',0.6);
 end
-if has_truth; plot(x_true,y_true,'wo','MarkerSize',8,'LineWidth',1); end
+if has_truth; plot(x_true,y_true,'o','Color',outline_color,'MarkerSize',8,'LineWidth',1); end
 hold off;
-xlabel('横向x=\lambda_0 f_\theta/2 / m'); ylabel('距离向y / m（远离雷达为正）');
-title(sprintf('RD图像（\\phi_c=%.1f°，\\theta_m=%.1f°）；白线为模型俯视轮廓',phi_c_deg,theta_m*180/pi));
-caxis([-dynamic_range_dB,0]); colorbar; colormap(jet(256));
-print(gcf,'-dpng','-r300',['figures/fig04_RD_image',fig_tag,'.png']);
+xlabel('横向x / m'); ylabel('距离向y / m（远离雷达为正）');
+title(sprintf('%s图像（f_0=%.1f GHz，\\theta=%.0f°，\\phi_c=%.1f°，\\theta_m=%.1f°）',...
+    name_main,f0/1e9,theta_inc_deg,phi_c_deg,theta_m*180/pi));
+colormap(cmap); caxis([-dynamic_range_dB,0]); colorbar;
+print(gcf,'-dpng','-r300',['figures/fig04_ISAR_image',fig_tag,'.png']);
 
 %% 图4：RD与PFA对比（上：全图；下：离旋转中心最远处的局部放大）
 % RD假设小转角、窄带：离中心越远，距离徙动和二次相位越大，RD越散焦；PFA可校正。
@@ -217,7 +229,7 @@ if enable_pfa
         imagesc(x_image,y_image,img_list{mod(k-1,2)+1}); axis xy; axis equal; axis tight;
         hold on;
         if has_model
-            plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'w-','LineWidth',0.8);
+            plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'-','Color',outline_color,'LineWidth',0.6);
         end
         if has_truth; plot(x_true,y_true,'wo','MarkerSize',8); end
         if k<=2
@@ -229,9 +241,9 @@ if enable_pfa
         end
         hold off;
         xlabel('横向x / m'); ylabel('距离向y / m');
-        caxis([-dynamic_range_dB,0]); colorbar;
+        colormap(cmap); caxis([-dynamic_range_dB,0]); colorbar;
     end
-    colormap(jet(256));
+    colormap(cmap);
     print(gcf,'-dpng','-r300',['figures/fig05_RD_vs_PFA',fig_tag,'.png']);
 end
 
@@ -253,7 +265,7 @@ for k = 1:3
     xlabel('横向x / m'); ylabel('距离向y / m'); title(name_case{k});
     caxis([-dynamic_range_dB,0]);
 end
-colormap(jet(256));
+colormap(cmap);
 print(gcf,'-dpng','-r300',['figures/fig06_sign_check',fig_tag,'.png']);
 
 %% 打印参数与核验结果

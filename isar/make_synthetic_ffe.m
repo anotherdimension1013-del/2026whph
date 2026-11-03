@@ -40,7 +40,8 @@ k_axis = 2*pi*f_axis(:)/c; % 列向量：各频点波数
 phi_rad = phi_axis_deg*pi/180; % 行向量：各方位角
 E_theta = complex(zeros(Nf,Naz));
 for i = 1:Ntarget
-    u_dot_r = Position_x(i)*cos(phi_rad)+Position_y(i)*sin(phi_rad); % 1×Naz
+    % 雷达方向u=(sin(theta)cos(phi), sin(theta)sin(phi), cos(theta))，散射点在z=0平面内
+    u_dot_r = sin(theta_inc_deg*pi/180)*(Position_x(i)*cos(phi_rad)+Position_y(i)*sin(phi_rad)); % 1×Naz
     E_theta = E_theta+Position_Abs(i)*exp(1j*2*k_axis*u_dot_r); % Nf×Naz
 end
 E_phi = complex(zeros(Nf,Naz)); % 点散射体不产生交叉极化
