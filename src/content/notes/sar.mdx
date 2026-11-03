@@ -16,6 +16,7 @@ import MatchedFilterDrawing from '../../assets/figures/sar/matched-filter-drawin
 import PhaseAlignment from '../../assets/figures/sar/phase-alignment.svg';
 import SideLookingGeometry from '../../assets/figures/sar/side-looking-geometry.svg';
 import SyntheticAperture from '../../assets/figures/sar/synthetic-aperture.svg';
+import DopplerHistory from '../../assets/figures/sar/doppler-history.svg';
 
 
 ## 1-1 雷达分辨率的概念
@@ -343,4 +344,110 @@ $\beta=0.03/2=0.015\ \text{rad}$；$L_s=\beta R=750\ \text{m}$；真实孔径 $\
 
 <Quiz q="⑤ 为什么 SAR 的天线越小，方位分辨率反而越好？">
 天线越小，真实波束越宽，目标被照射时间越长，合成孔径 $L_s$ 越长，合成波束越窄，分辨率越高。
+</Quiz>
+
+## 2-2 回波信号的多普勒历史及其参数
+
+<Callout title="一句话主线">
+雷达匀速飞过目标时，斜距 $r(t)$ 先减小后增大（抛物线）→ 回波相位随之变化 → 产生**随时间线性变化的多普勒频移** → 方位向回波是一个**线性调频信号**。这就是 1-1 中说的“方位向也能做脉冲压缩”。
+</Callout>
+
+<Figure n="2-2-a" caption="多普勒历史：四个面板共用时间轴。位置 1 进入波束、2 在波束中心（t = t₀）、3 离开波束">
+  <DopplerHistory />
+</Figure>
+
+### 斜距随时间变化
+
+在包含航线和点目标 $P$ 的**斜距平面**内建立坐标：载机前进方向为 $x$，与之垂直的为斜距 $R$ 方向。载机速度为 $v_a$，取 $t=0$ 时载机位于 $x=0$，则载机位置 $x = v_a t$。点目标 $P$ 的 $x$ 坐标为 $X$，到航线的垂直距离为 $R$。雷达到 $P$ 的距离为：
+
+<Formula meaning="斜距随时间变化：t₀ = X/vₐ 时（载机正对目标）最小，等于 R" point="菲涅尔近似：R ≫ |x − X| 时，根号展开只保留二次项">
+$$
+r(t) = \sqrt{R^2 + (v_a t - X)^2} \;\approx\; R + \frac{(v_a t - X)^2}{2R} \tag{2-2-4}
+$$
+</Formula>
+
+$t_0 = X/v_a$ 是雷达经过 $x = X$（正对目标、波束中心）的时刻。
+
+### 多普勒频移：线性变化
+
+设发射连续正弦波，载频为 $\omega_c$（角频率，$f_c = \omega_c/2\pi$），波长 $\lambda = 2\pi c/\omega_c$。回波相对发射延迟 $\alpha = 2r/c$（往返时间），所以回波相位比发射信号落后 $\omega_c\alpha = \dfrac{4\pi r}{\lambda}$。$r$ 随时间变，相位就随时间变，相位的变化率就是频率的偏移，即**多普勒频移** $f_d$：
+
+<Formula meaning="多普勒频移：由回波相位对时间求导得到" point="与时间成线性关系，斜率为负；t₀ 时为 0">
+$$
+f_d(t) = -\frac{1}{2\pi}\frac{d}{dt}\Bigl(\frac{4\pi r}{\lambda}\Bigr) = -\frac{2}{\lambda}\frac{dr}{dt} = -\frac{2v_a^2}{\lambda R}(t - t_0) \tag{2-2-10}
+$$
+</Formula>
+
+<Callout kind="tip" title="符号直觉">
+- $t < t_0$：雷达**靠近**目标，$r$ 减小，$f_d > 0$；
+- $t = t_0$：正对目标（波束中心），$f_d = 0$；
+- $t > t_0$：雷达**远离**目标，$r$ 增大，$f_d < 0$。
+</Callout>
+
+于是回波瞬时频率 $f_r(t) = f_c + f_d(t)$，在载频附近**线性变化**。载频太高无法直接记录，要先降到一个较低的**偏置频率** $f_0$，降频后的瞬时频率
+
+$$
+f_{\text{det}}(t) = f_0 - \frac{2v_a^2}{\lambda R}(t - t_0) \tag{2-2-14}
+$$
+
+称为**多普勒频率历史**，简称**多普勒历史**：一个按**负斜率**变化的线性调频信号。
+
+### 三个参数
+
+<Formula meaning="调频斜率（角频率的变化率）" point="与 vₐ² 成正比，与 R 成反比；负号表示频率由高到低">
+$$
+k_a = -\frac{4\pi v_a^2}{\lambda R} \tag{2-2-15}
+$$
+</Formula>
+
+<Formula meaning="合成孔径时间：点目标横穿波束所用的时间" point="Lₛ = βR 是 2-1 中的合成孔径长度">
+$$
+T_s = \frac{L_s}{v_a} = \frac{\beta R}{v_a} \tag{2-2-16}
+$$
+</Formula>
+
+<Formula meaning="多普勒带宽：合成孔径时间内多普勒频率的变化范围" point="与距离 R 无关">
+$$
+\Delta f_d = \frac{1}{2\pi}|k_a|\,T_s = \frac{2v_a^2}{\lambda R}T_s = \frac{2\beta v_a}{\lambda} \tag{2-2-17}
+$$
+</Formula>
+
+多普勒历史的**时间带宽积** $\Delta f_d \cdot T_s = \dfrac{2v_a^2}{\lambda R}T_s^2$ (2-2-18)，通常远大于 1，所以可以像距离向一样做脉冲压缩。
+
+<Callout kind="extra" title="多普勒观点再推一次 ρₐ ≈ D/2">
+方位向回波是带宽 $\Delta f_d$ 的线性调频信号，脉冲压缩后宽度约 $1/\Delta f_d$（见 1-2）。载机在这段时间里飞过的距离就是方位分辨率：
+
+$$
+\rho_a = \frac{v_a}{\Delta f_d} = \frac{v_a\lambda}{2\beta v_a} = \frac{\lambda}{2\beta} = \frac{\lambda}{2\lambda/D} = \frac{D}{2}
+$$
+
+和 2-1 天线阵列观点的结论完全一致，而且自然得到了因子 2。
+</Callout>
+
+<Callout kind="exam" title="必记">
+- 斜距 $r(t)$ 是**抛物线** → 多普勒频率 $f_d(t)$ 是**直线**（负斜率）→ 方位向回波是**线性调频信号**；
+- $k_a = -\dfrac{4\pi v_a^2}{\lambda R}$，$T_s = \dfrac{\beta R}{v_a}$，$\Delta f_d = \dfrac{2\beta v_a}{\lambda}$；
+- 方位向脉冲压缩后 $\rho_a = v_a/\Delta f_d \approx D/2$。
+</Callout>
+
+### 自测题
+
+<Quiz q="① 为什么方位向回波是线性调频信号？">
+斜距 $r(t)\approx R+(v_at-X)^2/(2R)$ 是时间的二次函数，回波相位 $4\pi r/\lambda$ 也是二次函数，对时间求导得到的多普勒频率就是时间的一次函数，即频率线性变化。
+</Quiz>
+
+<Quiz q="② 雷达靠近、正对、远离目标时，多普勒频移的符号分别是什么？">
+靠近时 $f_d>0$；正对（$t=t_0$）时 $f_d=0$；远离时 $f_d<0$。
+</Quiz>
+
+<Quiz q="③ 调频斜率 kₐ 与 vₐ、R 是什么关系？">
+$k_a=-4\pi v_a^2/(\lambda R)$：与 $v_a^2$ 成正比，与 $R$ 成反比。
+</Quiz>
+
+<Quiz q="④ vₐ = 200 m/s，λ = 3 cm，D = 3 m，R = 30 km：求 β、Tₛ、Δf_d、ρₐ。">
+$\beta=\lambda/D=0.01\ \text{rad}$；$T_s=\beta R/v_a=300/200=$ **1.5 s**；$\Delta f_d=2\beta v_a/\lambda=2\times0.01\times200/0.03\approx$ **133 Hz**；$\rho_a=v_a/\Delta f_d=$ **1.5 m** $=D/2$。
+</Quiz>
+
+<Quiz q="⑤ 用多普勒观点说明 ρₐ ≈ D/2。">
+回波多普勒带宽 $\Delta f_d=2\beta v_a/\lambda$，压缩后时间分辨率约 $1/\Delta f_d$，对应距离 $\rho_a=v_a/\Delta f_d=\lambda/(2\beta)=D/2$。
 </Quiz>
