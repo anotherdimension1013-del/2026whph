@@ -14,8 +14,19 @@ script_dir = fileparts(mfilename('fullpath'));
 if ~isempty(script_dir); cd(script_dir); addpath(script_dir); end
 
 %% 选项
-ffe_file = 'data/synthetic.ffe'; % FEKO导出的远场文件；真实数据改为自己的文件名
-truth_file = 'data/synthetic_truth.mat'; % 假数据的真实散射点；真实FEKO数据时设为''
+data_mode = 'feko'; % 'feko'：FEKO仿真数据；'synthetic'：点散射体假数据（定标自检）
+switch data_mode
+    case 'feko'
+        ffe_file = 'data/radarsat1_C_low.ffe'; % FEKO导出的远场文件（5.3 GHz，RL-GO射线密度Low）
+        truth_file = ''; % 真实数据没有“真实散射点”
+        fig_tag = '';
+    case 'synthetic'
+        ffe_file = 'data/synthetic.ffe'; % make_synthetic_ffe.m生成
+        truth_file = 'data/synthetic_truth.mat'; % 假数据的真实散射点
+        fig_tag = '_synthetic'; % 假数据的图加后缀，避免覆盖真实数据的图
+    otherwise
+        error('data_mode只能是feko或synthetic。');
+end
 E_comp = 'Etheta'; % 'Etheta'：VV；'Ephi'：HH
 use_window = true; % true：距离、方位都加Hann窗，降低旁瓣但主瓣变宽
 pad_factor = 4; % 补零倍数：只加密显示网格，不提高分辨率
@@ -81,7 +92,7 @@ plot(f_axis/1e9,RCS_dBsm(:,idx0),'LineWidth',1.2); grid on;
 xlabel('频率 / GHz'); ylabel('RCS / dBsm');
 title(sprintf('\\phi=%.2f°时RCS随频率变化',phi_c_deg));
 colormap(jet(256));
-print(gcf,'-dpng','-r300','figures/fig02_raw_data_rcs.png');
+print(gcf,'-dpng','-r300',['figures/fig02_raw_data_rcs',fig_tag,'.png']);
 
 %% 距离压缩：频率维加窗 + IFFT（补零只加密网格）
 % E(f)~exp(-j*4*pi*f*dR/c)，IFFT后峰值在dR处：远离雷达为正，与ISAR_RD.m一致。
@@ -105,7 +116,7 @@ xlim(y_lim); ylim([-dynamic_range_dB,0]);
 xlabel('距离向y / m'); ylabel('归一化幅度 / dB');
 title(sprintf('\\phi=%.2f°的一维距离像',phi_c_deg));
 colormap(jet(256));
-print(gcf,'-dpng','-r300','figures/fig03_range_profiles.png');
+print(gcf,'-dpng','-r300',['figures/fig03_range_profiles',fig_tag,'.png']);
 
 %% 横向成像（RD）：方位维加窗 + FFT
 % 小转角：R-R0 ≈ y-x*theta，相位 exp(+j*4*pi*x*theta/lambda)，
@@ -181,19 +192,22 @@ hold off;
 xlabel('横向x=\lambda_0 f_\theta/2 / m'); ylabel('距离向y / m（远离雷达为正）');
 title(sprintf('RD图像（\\phi_c=%.1f°，\\theta_m=%.1f°）；白线为模型俯视轮廓',phi_c_deg,theta_m*180/pi));
 caxis([-dynamic_range_dB,0]); colorbar; colormap(jet(256));
-print(gcf,'-dpng','-r300','figures/fig04_RD_image.png');
+print(gcf,'-dpng','-r300',['figures/fig04_RD_image',fig_tag,'.png']);
 
 %% 图4：RD与PFA对比（上：全图；下：离旋转中心最远处的局部放大）
 % RD假设小转角、窄带：离中心越远，距离徙动和二次相位越大，RD越散焦；PFA可校正。
 if enable_pfa
-    % 放大中心：取模型轮廓上离旋转中心最远的点（帆板端点）
-    if has_model
-        pts = Model.outline_xy(~isnan(Model.outline_xy(:,1)),:);
-    else
-        pts = [x_lim(2),0];
+    % 放大中心：-10 dB以上的强散射点中，横向离中心最远的一个（RD散焦最明显）
+    [XI,YI] = meshgrid(x_image,y_image);
+    Img_max = Image_dB;
+    for k_shift = [-1,1] % 3×3邻域局部极大值
+        Img_max = max(Img_max,circshift(Image_dB,k_shift,1));
+        Img_max = max(Img_max,circshift(Image_dB,k_shift,2));
     end
-    [~,i_far] = max(abs(rot_x(pts,theta_c))); % 横向最远点（RD散焦最明显）
-    zoom_c = [rot_x(pts(i_far,:),theta_c),rot_y(pts(i_far,:),theta_c)];
+    is_peak = Image_dB>=Img_max & Image_dB>-10;
+    [~,i_far] = max(abs(XI(is_peak)));
+    x_pk = XI(is_peak); y_pk = YI(is_peak);
+    zoom_c = [x_pk(i_far),y_pk(i_far)];
     zoom_w = 0.06*L; % 放大窗口半宽，m
     figure('Name','RD与PFA对比','Color','w','Position',[100,100,900,800]);
     img_list = {Image_dB,Image_pfa_dB};
@@ -218,7 +232,7 @@ if enable_pfa
         caxis([-dynamic_range_dB,0]); colorbar;
     end
     colormap(jet(256));
-    print(gcf,'-dpng','-r300','figures/fig05_RD_vs_PFA.png');
+    print(gcf,'-dpng','-r300',['figures/fig05_RD_vs_PFA',fig_tag,'.png']);
 end
 
 %% 图5：正负号检查——正确约定 / 误取共轭 / 方位角顺序取反
@@ -240,7 +254,7 @@ for k = 1:3
     caxis([-dynamic_range_dB,0]);
 end
 colormap(jet(256));
-print(gcf,'-dpng','-r300','figures/fig06_sign_check.png');
+print(gcf,'-dpng','-r300',['figures/fig06_sign_check',fig_tag,'.png']);
 
 %% 打印参数与核验结果
 fprintf('\n======= ISAR转台成像参数 =======\n');

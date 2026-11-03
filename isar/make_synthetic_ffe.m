@@ -73,3 +73,4 @@ end
 fclose(fid);
 save('data/synthetic_truth.mat','NPosition');
 fprintf('已生成%s：%d个频点×%d个方位角，%d个点散射体\n',ffe_file,Nf,Naz,Ntarget);
+fprintf('下一步：把ISAR_FEKO.m开头的data_mode设为''synthetic''后运行，检查定标与正负号。\n');
