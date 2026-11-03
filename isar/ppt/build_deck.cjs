@@ -185,48 +185,54 @@ note(s, "左图：目标顺时针转动，等效于目标不动、雷达逆时�
 
 // ============ 4 方法 ============
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "方法" });
-s.addText("成像方法：三种算法各解决一个问题", { placeholder: "title" });
-const steps = [
-  { t: "FEKO 数据", d: "E(f, φ)\n频率 × 方位角", c: HEX.accent6 },
-  { t: "RD", d: "把扇形近似成矩形\n直接二维 FFT", c: HEX.accent1 },
-  { t: "PFA", d: "先插值到矩形网格\n消除扇形误差", c: HEX.accent1 },
-  { t: "BP + 子孔径融合", d: "宽角分段成像\n几何平均融合", c: HEX.accent2 },
+s.addText("成像方法：三种算法并列，适用范围依次扩大", { placeholder: "title" });
+// 左：数据源
+const srcY = 1.4, rowH = 0.85, rowG = 0.18, rowsH = 3 * rowH + 2 * rowG;
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: srcY, w: 2.3, h: rowsH, rectRadius: 0.12,
+  fill: { color: HEX.dk2 }, line: { color: HEX.accent6, width: 1.5 }, objectName: "数据源" });
+s.addText([
+  { text: "FEKO 数据", options: { fontSize: 20, bold: true, color: TXT, breakLine: true } },
+  { text: "E(f, φ)", options: { fontSize: 18, color: CYAN, breakLine: true } },
+  { text: "频率 × 方位角", options: { fontSize: 13, color: MUTED } },
+], { x: 0.7, y: srcY, w: 2.1, h: rowsH, align: "center", valign: "middle", margin: 0, isTextBox: true });
+// 右：三条并列支路
+const branches = [
+  { t: "RD", d: "扇形近似成矩形，直接二维 FFT", cond: "适用：小转角、窄带宽", use: "本文：B 数据，作对照（结果①）", c: HEX.accent1 },
+  { t: "PFA", d: "先插值到矩形网格，再二维 FFT", cond: "解决：大转角/宽带宽下的散焦", use: "本文：B 数据（结果①）", c: HEX.accent1 },
+  { t: "BP + 子孔径融合", d: "逐像素投影，分段成像后几何平均", cond: "解决：宽角观测与散射方向性", use: "本文：A 的 60° 数据（结果②③④）", c: HEX.accent2 },
 ];
-const sw = 2.6, sg = 0.55, sy = 1.7;
-steps.forEach((st, i) => {
-  const x = 0.6 + i * (sw + sg);
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: sy, w: sw, h: 1.9, rectRadius: 0.12,
-    fill: { color: HEX.dk2 }, line: { color: st.c, width: 1.5 }, objectName: "步骤 " + st.t });
-  s.addText(st.t, { x: x + 0.15, y: sy + 0.2, w: sw - 0.3, h: 0.5, fontSize: 20, bold: true,
-    color: st.c, align: "center", margin: 0, isTextBox: true });
-  s.addText(st.d, { x: x + 0.15, y: sy + 0.8, w: sw - 0.3, h: 0.9, fontSize: 14, color: TXT,
-    align: "center", margin: 0, isTextBox: true });
-  if (i < steps.length - 1) {
-    s.addShape(pres.shapes.RIGHT_ARROW, { x: x + sw + 0.1, y: sy + 0.75, w: sg - 0.2, h: 0.4,
-      fill: { color: HEX.lt2 }, line: { color: HEX.lt2, width: 0 }, objectName: "箭头" });
-  }
-});
-const probs = ["", "适用于小转角、窄带宽", "解决：大转角/宽带宽下的散焦", "解决：散射的方向性"];
-probs.forEach((p, i) => {
-  if (!p) return;
-  s.addText(p, { x: 0.6 + i * (sw + sg), y: sy + 2.0, w: sw, h: 0.35, fontSize: 12, color: MUTED,
-    align: "center", margin: 0, isTextBox: true });
+const bx = 3.8, bw = 4.3;
+branches.forEach((b, i) => {
+  const y = srcY + i * (rowH + rowG), cy = y + rowH / 2, sy = srcY + rowsH / 2;
+  // 连线：数据源 → 支路（每条支路独立取数据）
+  s.addShape(pres.shapes.LINE, { x: 2.9, y: Math.min(sy, cy), w: bx - 2.9, h: Math.max(Math.abs(cy - sy), 0.001),
+    flipV: cy < sy, line: { color: HEX.lt2, width: 1.5, endArrowType: "triangle" }, objectName: "连线 " + b.t });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: bx, y, w: bw, h: rowH, rectRadius: 0.1,
+    fill: { color: HEX.dk2 }, line: { color: b.c, width: 1.5 }, objectName: "支路 " + b.t });
+  s.addText([
+    { text: b.t, options: { fontSize: 17, bold: true, color: b.c === HEX.accent2 ? CYAN : AMBER, breakLine: true } },
+    { text: b.d, options: { fontSize: 12, color: TXT } },
+  ], { x: bx + 0.2, y, w: bw - 0.3, h: rowH, valign: "middle", margin: 0, isTextBox: true });
+  s.addText([
+    { text: b.cond, options: { fontSize: 13, color: TXT, breakLine: true } },
+    { text: b.use, options: { fontSize: 12, color: MUTED } },
+  ], { x: bx + bw + 0.3, y, w: 12.7 - (bx + bw + 0.3), h: rowH, valign: "middle", margin: 0, isTextBox: true });
 });
 // 几何平均公式卡片
-s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 4.5, w: 5.6, h: 2.1, rectRadius: 0.12,
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 4.65, w: 5.6, h: 2.0, rectRadius: 0.12,
   fill: { color: HEX.dk2 }, line: { color: HEX.accent5, width: 0.75 }, objectName: "融合公式" });
-s.addText("几何平均融合（N 个子孔径）", { x: 0.85, y: 4.65, w: 5.1, h: 0.35, fontSize: 13, color: MUTED,
+s.addText("几何平均融合（N 个子孔径）", { x: 0.85, y: 4.8, w: 5.1, h: 0.35, fontSize: 13, color: MUTED,
   margin: 0, isTextBox: true });
-s.addText("I = ( P₁ · P₂ · … · P_N )^(1/N)", { x: 0.85, y: 5.05, w: 5.1, h: 0.6, fontSize: 24, bold: true,
+s.addText("I = ( P₁ · P₂ · … · P_N )^(1/N)", { x: 0.85, y: 5.2, w: 5.1, h: 0.6, fontSize: 24, bold: true,
   color: CYAN, margin: 0, isTextBox: true, fontFace: "Cambria" });
-s.addText("= 各子孔径图像在 dB 域取平均", { x: 0.85, y: 5.75, w: 5.1, h: 0.4, fontSize: 14, color: TXT,
+s.addText("= 各子孔径图像在 dB 域取平均", { x: 0.85, y: 5.9, w: 5.1, h: 0.4, fontSize: 14, color: TXT,
   margin: 0, isTextBox: true });
 body(s, [
-  "RD 把扇形数据近似为矩形，转角或带宽一大就会散焦，PFA 先插值到矩形网格来消除这一误差。",
+  "三种算法都直接处理同一份数据：RD 把扇形近似为矩形，转角或带宽一大就会散焦；PFA 先插值到矩形网格，消除这一误差。",
   "宽角观测时，每个部件只在一小段角度内反光，因此先分成 6.3° 的子孔径分别用 BP 成像。",
   "再按几何平均融合：只有在多数角度都亮的点才会保留下来。",
-], 6.7, 4.55, 6.0, 2.2, 16);
-note(s, "RD 是最基本的算法，但它假设转角很小。PFA 把扇形数据插值到矩形网格，能处理更大的转角和带宽。60 度宽角观测时，我们用后向投影把每 6.3 度做成一张子图，再把 18 张子图做几何平均。几何平均相当于在 dB 域取平均，只有在多数角度都存在的散射点才会保留。");
+], 6.7, 4.7, 6.0, 2.1, 16);
+note(s, "三种算法不是先后步骤，而是并列的，都直接处理同一份 FEKO 数据。RD 最简单，但假设转角和带宽很小；PFA 先把扇形数据插值到矩形网格，能处理更大的转角和带宽；60 度宽角时 PFA 也不够用，我们改用后向投影，每 6.3 度做一张子图，再把 18 张子图做几何平均。");
 
 // ============ 5 实验设计 ============
 pres.addSection({ title: "实验" });
