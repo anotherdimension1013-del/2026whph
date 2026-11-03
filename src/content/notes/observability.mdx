@@ -1,0 +1,384 @@
+---
+title: 能观测性学习笔记
+heading: 能观测性
+short: 能观测性
+tagline: 从定义到例题。
+description: 线性系统理论：从“输出能不能告诉我们初始状态”出发，逐步解释状态转移矩阵、能观测矩阵、PBH 判据和约当块。
+eyebrow: LINEAR SYSTEMS
+course: 线性系统理论 · 第三章
+question: "状态藏在系统里，\n输出能把它找回来吗？"
+order: 1
+---
+
+## 1. 能观测性是什么？
+
+考虑连续线性系统：
+
+$$
+\dot x(t) = Ax(t) + Bu(t),\qquad y(t) = Cx(t)
+$$
+
+这里 $x(t)\in\mathbb R^n$ 是状态，$u(t)$ 是输入，$y(t)\in\mathbb R^p$ 是可测输出；$A, B, C$ 分别描述状态动态、输入如何作用于状态、状态如何映射到输出。
+
+能观测性问的是：**观察一段时间内的输出，能否唯一确定起始状态 $x_0$？** 为了单独判断系统本身的性质，先令输入为零（$u(t)=0$）。若在某个有限时间区间内，输出可以唯一确定 $x_0$，系统就完全能观测。
+
+<Callout title="不可观测状态">
+如果存在一个非零初始状态 $x_0 \ne 0$，却产生恒为零的输出 $y(t)\equiv 0$，这个状态就藏在输出的“盲区”里，系统不完全能观测。
+</Callout>
+
+“状态和输出有联系”还不够。不同状态的影响可能相互抵消；真正要检查的是：是否有非零初态完全不留输出痕迹。
+
+## 2. 先弄清 eᴬᵗ 是什么
+
+对零输入系统 $\dot x = Ax$，矩阵指数定义为幂级数：
+
+$$
+e^{At} = I + At + \frac{A^2t^2}{2!} + \frac{A^3t^3}{3!} + \cdots
+$$
+
+$I$ 是与 $A$ 同阶的单位矩阵。矩阵指数满足 $\frac{d}{dt}e^{At} = Ae^{At}$，所以初值为 $x(0)=x_0$ 时，系统解为：
+
+$$
+x(t) = e^{At}x_0
+$$
+
+再由输出方程 $y=Cx$，得到：
+
+$$
+y(t) = Ce^{At}x_0
+$$
+
+若 $A$ 可对角化，即 $A = P\Lambda P^{-1}$，则计算最方便：
+
+$$
+e^{At} = Pe^{\Lambda t}P^{-1} = P\,\operatorname{diag}\!\left(e^{\lambda_1 t},\dots,e^{\lambda_n t}\right)P^{-1}
+$$
+
+意思是先把状态分解成各个特征模态；每个模态按自己的特征值指数变化，再变回原坐标。注意，$e^{At}$ 是对矩阵整体定义的，**不是**把矩阵中的每个数分别取指数。
+
+<Example n="01" title="不完全能观 · 逐步计算 eᴬᵗ" id="example-01">
+
+已知
+
+$$
+A = \begin{bmatrix}-2 & 1\\ 1 & -2\end{bmatrix},\qquad C = \begin{bmatrix}1 & -1\end{bmatrix}
+$$
+
+**符号说明：**$A$ 是 $2\times2$ 状态矩阵；$C$ 是 $1\times2$ 输出矩阵；状态写作 $x(t)=[x_1(t),x_2(t)]^T$；未知初态为 $x_0=[x_1(0),x_2(0)]^T$；输出是一个标量 $y(t)=Cx(t)$。
+
+### 第一步：求 A 的特征值和特征向量
+
+特征值由特征方程 $\det(\lambda I-A)=0$ 求出：
+
+$$
+\lambda I - A = \begin{bmatrix}\lambda+2 & -1\\ -1 & \lambda+2\end{bmatrix},\qquad
+\det(\lambda I-A) = (\lambda+2)^2-1 = (\lambda+1)(\lambda+3) = 0
+$$
+
+所以特征值为 $\lambda_1=-1$、$\lambda_2=-3$。特征向量由 $(A-\lambda I)v=0$ 求出。对 $\lambda_1=-1$：
+
+$$
+(A+I)v = \begin{bmatrix}-1 & 1\\ 1 & -1\end{bmatrix}v = 0 \;\Rightarrow\; -v_1+v_2=0 \;\Rightarrow\; v_1=v_2
+$$
+
+取一个非零解 $v_1=[1,1]^T$。对 $\lambda_2=-3$：
+
+$$
+(A+3I)v = \begin{bmatrix}1 & 1\\ 1 & 1\end{bmatrix}v = 0 \;\Rightarrow\; v_1+v_2=0
+$$
+
+取 $v_2=[1,-1]^T$。特征向量的长度可任意缩放；为方便计算，这里选分量为 1 和 ±1 的向量。把两个特征向量作为列组成矩阵 $P=[v_1\ v_2]$：
+
+$$
+P = \begin{bmatrix}1 & 1\\ 1 & -1\end{bmatrix},\qquad \Lambda = \begin{bmatrix}-1 & 0\\ 0 & -3\end{bmatrix}
+$$
+
+因此 $A=P\Lambda P^{-1}$。要使用这个分解，必须确认 $P$ 可逆。先回顾二阶矩阵的逆矩阵公式：
+
+$$
+M = \begin{bmatrix}a & b\\ c & d\end{bmatrix},\qquad
+M^{-1} = \frac{1}{ad-bc}\begin{bmatrix}d & -b\\ -c & a\end{bmatrix}\quad(ad-bc\ne0)
+$$
+
+<Callout title="逐项代入逆矩阵公式">
+对 $P$ 取 $a=1,\ b=1,\ c=1,\ d=-1$：
+
+- $\det P = ad-bc = 1\times(-1)-1\times1 = -2 \ne 0$，因此 $P$ 可逆；
+- $P^{-1} = \dfrac{1}{-2}\begin{bmatrix}-1 & -1\\ -1 & 1\end{bmatrix} = \dfrac12\begin{bmatrix}1 & 1\\ 1 & -1\end{bmatrix}$；
+- 前面的负号乘进每个元素：$(-\tfrac12)\times(-1)=\tfrac12$，而 $(-\tfrac12)\times1=-\tfrac12$。
+</Callout>
+
+直接验算，确认乘积是单位矩阵：
+
+$$
+PP^{-1} = \frac12\begin{bmatrix}1+1 & 1-1\\ 1-1 & 1+1\end{bmatrix} = \begin{bmatrix}1 & 0\\ 0 & 1\end{bmatrix} = I
+$$
+
+再核对特征分解是否还原了原矩阵：$P\Lambda = \begin{bmatrix}-1 & -3\\ -1 & 3\end{bmatrix}$，所以
+
+$$
+P\Lambda P^{-1} = \frac12\begin{bmatrix}-1-3 & -1+3\\ -1+3 & -1-3\end{bmatrix} = \begin{bmatrix}-2 & 1\\ 1 & -2\end{bmatrix} = A
+$$
+
+### 第二步：用对角化公式计算 eᴬᵗ
+
+先对对角矩阵里的每个特征值分别取指数：$e^{\Lambda t}=\operatorname{diag}(e^{-t},e^{-3t})$。令 $a=e^{-t}$、$b=e^{-3t}$，按乘法结合律先算左边两个矩阵：
+
+$$
+Pe^{\Lambda t} = \begin{bmatrix}1 & 1\\ 1 & -1\end{bmatrix}\begin{bmatrix}a & 0\\ 0 & b\end{bmatrix} = \begin{bmatrix}a & b\\ a & -b\end{bmatrix}
+$$
+
+最后再乘 $P^{-1}=\frac12\begin{bmatrix}1 & 1\\ 1 & -1\end{bmatrix}$。矩阵乘法“第 i 行乘第 j 列”，四个位置分别是：
+
+<Callout title="逐项相乘">
+- 左上角：$\dfrac12(a\cdot1+b\cdot1) = \dfrac{a+b}{2}$
+- 右上角：$\dfrac12(a\cdot1+b\cdot(-1)) = \dfrac{a-b}{2}$
+- 左下角：$\dfrac12(a\cdot1+(-b)\cdot1) = \dfrac{a-b}{2}$
+- 右下角：$\dfrac12(a\cdot1+(-b)\cdot(-1)) = \dfrac{a+b}{2}$
+</Callout>
+
+$$
+e^{At} = \frac12\begin{bmatrix}e^{-t}+e^{-3t} & e^{-t}-e^{-3t}\\ e^{-t}-e^{-3t} & e^{-t}+e^{-3t}\end{bmatrix}
+$$
+
+### 第三步：算输出，看看它告诉了我们什么
+
+输出矩阵 $C=[1,-1]$ 是一行两列。左乘 $e^{At}$ 时，第一项是 $C$ 的行与矩阵第一列点乘，第二项是与第二列点乘：
+
+- 第一项 $= 1\cdot\dfrac{a+b}{2} + (-1)\cdot\dfrac{a-b}{2} = b$
+- 第二项 $= 1\cdot\dfrac{a-b}{2} + (-1)\cdot\dfrac{a+b}{2} = -b$
+
+$$
+Ce^{At} = \begin{bmatrix}e^{-3t} & -e^{-3t}\end{bmatrix}
+$$
+
+再用行向量乘初态列向量 $x_0=[x_1(0),x_2(0)]^T$：
+
+$$
+y(t) = Ce^{At}x_0 = b\,x_1(0) - b\,x_2(0) = \bigl(x_1(0)-x_2(0)\bigr)e^{-3t}
+$$
+
+输出只能给出差值 $x_1(0)-x_2(0)$，无法分别还原两个初始分量。例如初态 $[1,1]^T$ 和 $[0,0]^T$ 都产生零输出。因此系统**不完全能观测**。
+
+<Callout title="用秩判据复核">
+二阶系统只需要 $Q_o=\begin{bmatrix}C\\ CA\end{bmatrix}$。逐列计算 $CA$：第一项 $1\times(-2)+(-1)\times1=-3$；第二项 $1\times1+(-1)\times(-2)=3$。因此
+
+$$
+Q_o = \begin{bmatrix}1 & -1\\ -3 & 3\end{bmatrix}
+$$
+
+第二行是第一行的 $-3$ 倍，只有一行线性独立，故 $\operatorname{rank}Q_o = 1 < 2$，系统不完全能观。
+</Callout>
+
+<Callout kind="tip" title="本题要点">
+矩阵指数告诉我们初态如何演化；输出只看见演化后的某些组合。若两个初态组合在输出中始终重合，它们就不能被区分。
+</Callout>
+
+</Example>
+
+## 3. 为什么列函数线性无关就完全能观？
+
+把 $Ce^{At}$ 看作一个随时间变化的矩阵。它的 $n$ 列分别是 $n$ 个时间函数（多输出时是向量值函数）。初始状态的每个分量，正是这些列函数前面的系数：
+
+$$
+y(t) = Ce^{At}x_0 = x_1(0)f_1(t) + \cdots + x_n(0)f_n(t)
+$$
+
+若这些列函数线性相关，就存在一组不全为零的系数 $x_0$，使组合对所有 $t$ 都等于零；这组系数就是一个非零不可观测初态。若列函数线性无关，只有 $x_0=0$ 才能产生恒零输出，所以每个非零初态都会留下可辨认的输出。
+
+<Callout title="表述提醒">
+$Ce^{At}$ 是 $p\times n$ 矩阵函数。这里严格说的是它的 **$n$ 个列函数**线性无关；单输出时，也可说行向量里的 $n$ 个分量函数线性无关。不要把“某一时刻矩阵的行满秩”与“整段时间上的函数线性无关”混为一谈。
+</Callout>
+
+**看一个维数例子：**令 $A=\begin{bmatrix}0 & 1\\ -1 & 0\end{bmatrix}$、$C=[1,0]$。此时
+
+$$
+e^{At} = \begin{bmatrix}\cos t & \sin t\\ -\sin t & \cos t\end{bmatrix},\qquad Ce^{At} = \begin{bmatrix}\cos t & \sin t\end{bmatrix}
+$$
+
+每个固定时刻，这只是一个 $1\times2$ 行矩阵，普通矩阵秩最多为 1；但作为时间函数，$\cos t$ 和 $\sin t$ 线性无关：若 $a\cos t + b\sin t = 0$ 对所有 $t$ 成立，代入 $t=0$ 得 $a=0$，再代入 $t=\pi/2$ 得 $b=0$。对应地，$Q_o = \begin{bmatrix}C\\ CA\end{bmatrix} = \begin{bmatrix}1 & 0\\ 0 & 1\end{bmatrix}$ 满秩，系统完全能观。判断的是“函数列是否独立”，不是要求每个时刻的 $Ce^{At}$ 都列满秩。
+
+## 4. 定常系统的能观测判据
+
+对 $\dot x = Ax,\ y=Cx$，最直接的工具是能观测矩阵：
+
+$$
+Q_o = \begin{bmatrix}C\\ CA\\ \vdots\\ CA^{n-1}\end{bmatrix},\qquad \text{完全能观} \iff \operatorname{rank}Q_o = n
+$$
+
+这个矩阵把输出及其各阶导数中包含的状态信息依次堆叠起来。由 $y=Cx$ 可得 $\dot y = CAx$、$\ddot y = CA^2x$，一直到 $y^{(n-1)} = CA^{n-1}x$。因此堆叠后就是 $Q_o x$。若列秩为 $n$，这些关系能唯一确定 $n$ 个状态分量。
+
+其他常用判据：
+
+- **格拉姆矩阵：**$W_o(0,T) = \displaystyle\int_0^T e^{A^Tt}C^TCe^{At}\,dt$ 非奇异，当且仅当系统完全能观。它把整个时间区间内的输出信息累计起来。
+- **PBH 秩判据：**对 $A$ 的每个特征值 $\lambda$，检查 $\operatorname{rank}\begin{bmatrix}C\\ \lambda I-A\end{bmatrix} = n$。若不满秩，就存在该特征值对应的不可观模态。
+- **特征向量判据：**不存在非零向量 $v$ 同时满足 $Av=\lambda v$ 和 $Cv=0$。也就是 $A$ 的任何特征模态都不能完全落在输出盲区。
+- **单输出频域判据：**$C(sI-A)^{-1}$ 没有零极点相消，当且仅当系统完全能观。
+
+<Example n="02" title="完全能观 · 手算能观矩阵" id="example-02">
+
+令
+
+$$
+A = \begin{bmatrix}1 & 0 & 0\\ 0 & 0 & 1\\ 0 & 5 & 0\end{bmatrix},\qquad C = \begin{bmatrix}1 & 1 & 0\end{bmatrix}
+$$
+
+系统阶数 $n=3$，所以只需计算 $C,\ CA,\ CA^2$ 三行。
+
+1. **第一行：**$C = [1,1,0]$。
+2. **第二行：**用行向量乘矩阵，$CA = [1\cdot1+1\cdot0+0\cdot0,\ 1\cdot0+1\cdot0+0\cdot5,\ 1\cdot0+1\cdot1+0\cdot0] = [1,0,1]$。
+3. **第三行：**用上一行继续乘 $A$：第一项 $1\cdot1+0\cdot0+1\cdot0=1$，第二项 $1\cdot0+0\cdot0+1\cdot5=5$，第三项 $1\cdot0+0\cdot1+1\cdot0=0$，因此 $CA^2=[1,5,0]$。
+
+$$
+Q_o = \begin{bmatrix}1 & 1 & 0\\ 1 & 0 & 1\\ 1 & 5 & 0\end{bmatrix},\qquad
+\det Q_o = 1\cdot(0\cdot0-1\cdot5) - 1\cdot(1\cdot0-1\cdot1) + 0 = -4 \ne 0
+$$
+
+这是 $3\times3$ 方阵，行列式不为零，说明满秩 3。因此系统**完全能观测**。特征值也可从 $A$ 看出：第一维单独给出 $\lambda=1$；其余 $2\times2$ 子块 $\begin{bmatrix}0 & 1\\ 5 & 0\end{bmatrix}$ 满足 $\lambda^2-5=0$，所以另两个特征值为 $\pm\sqrt5$。
+
+<Callout title="PBH 交叉检查">
+要看每个特征值 $\lambda$ 处堆叠矩阵 $\begin{bmatrix}C\\ \lambda I-A\end{bmatrix}$ 是否列满秩。
+
+- $\lambda=1$ 时，取三行组成的子式 $\begin{bmatrix}1 & 1 & 0\\ 0 & 1 & -1\\ 0 & -5 & 1\end{bmatrix}$，行列式为 $1\times(1-5)=-4\ne0$，秩为 3。
+- $\lambda=\pm\sqrt5$ 时，取 $C$ 与 $\lambda I-A$ 的第一、二行组成子式 $\begin{bmatrix}1 & 1 & 0\\ \lambda-1 & 0 & 0\\ 0 & \lambda & -1\end{bmatrix}$，其行列式为 $\lambda-1$。由于 $\pm\sqrt5\ne1$，子式不为零，秩仍为 3。
+
+PBH 判据确认系统完全能观。
+</Callout>
+
+<Callout kind="tip" title="计算技巧">
+每次算 $CA^k$ 时，用上一行乘 $A$ 即可，不必先完整算出 $A^2, A^3$。
+</Callout>
+
+</Example>
+
+## 5. 不完全能观与传递函数中的零极点相消
+
+传递函数描述输入到输出的关系。一个状态模态如果无法出现在输出中，就可能在传递函数化简时被约掉。
+
+<Example n="03" title="零极点相消隐藏了一个状态模态" id="example-03">
+
+$$
+A = \begin{bmatrix}-4 & 1\\ 0 & -2\end{bmatrix},\qquad B = \begin{bmatrix}0\\ 1\end{bmatrix},\qquad C = \begin{bmatrix}-2 & 1\end{bmatrix}
+$$
+
+$B$ 是输入矩阵，$C$ 是输出矩阵。先算能观测矩阵的第二行 $CA$：第一项 $(-2)(-4)+1\cdot0=8$，第二项 $(-2)\cdot1+1\cdot(-2)=-4$，所以 $CA=[8,-4]$。
+
+$$
+Q_o = \begin{bmatrix}-2 & 1\\ 8 & -4\end{bmatrix},\qquad \operatorname{rank}Q_o = 1 < 2
+$$
+
+因此系统不完全能观。再看传递函数 $G(s)=C(sI-A)^{-1}B$。由 $sI-A = \begin{bmatrix}s+4 & -1\\ 0 & s+2\end{bmatrix}$，用二阶逆矩阵公式（$a=s+4,\ b=-1,\ c=0,\ d=s+2$）：
+
+$$
+(sI-A)^{-1} = \frac{1}{(s+2)(s+4)}\begin{bmatrix}s+2 & 1\\ 0 & s+4\end{bmatrix}
+$$
+
+先左乘 $C=[-2,1]$：第一项 $(-2)(s+2)+1\cdot0 = -2(s+2)$；第二项 $(-2)\cdot1+1\cdot(s+4) = s+2$。所以
+
+$$
+C(sI-A)^{-1} = \frac{\bigl[-2(s+2),\ s+2\bigr]}{(s+2)(s+4)} = \frac{[-2,\ 1]}{s+4}
+$$
+
+最后右乘 $B=[0,1]^T$，等于取上面行向量的第二项：
+
+$$
+G(s) = C(sI-A)^{-1}B = \frac{1}{s+4}
+$$
+
+未约分的表达式里有特征因子 $(s+2)(s+4)$，而分子包含 $s+2$，所以 $s=-2$ 处的极点被零点抵消。这个消失的模态与不完全能观相对应。
+
+</Example>
+
+## 6. 时变、离散系统和对偶
+
+### 时变系统：导数递推矩阵
+
+若 $A, C$ 随时间变化，定义 $N_0(t) = C(t)$，并递推
+
+$$
+N_k(t) = N_{k-1}(t)A(t) + \frac{d}{dt}N_{k-1}(t)
+$$
+
+某个时刻堆叠矩阵的秩达到 $n$，是完全能观的**充分条件**。秩不足本身不能单独作为否定结论，必要时应回到格拉姆矩阵定义。
+
+<Callout title="例题核验（课件第 78–80 页）">
+取 $A(t) = \begin{bmatrix}t & 1 & 0\\ 0 & t & 0\\ 0 & 0 & t^2\end{bmatrix}$、$C=[1,0,0]$。把矩阵方程逐行写开：
+
+$$
+\dot x_1 = tx_1 + x_2,\quad \dot x_2 = tx_2,\quad \dot x_3 = t^2x_3,\quad y = x_1
+$$
+
+第三个状态不进入前两条方程，也不被 $C$ 读取。令初态 $x(t_0)=[0,0,1]^T$，则 $x_1(t)=x_2(t)=0$，$x_3(t)=\exp\bigl((t^3-t_0^3)/3\bigr)$，因此非零初态始终产生 $y(t)=0$，直接证明本例不完全能观。
+
+相同结论也可由 Gramian 看出：$e_3=[0,0,1]^T$ 满足 $C\Phi(t,t_0)e_3=0$，于是 $e_3^TW_oe_3 = \int\lVert C\Phi(t,t_0)e_3\rVert^2dt = 0$，Gramian 有非零零空间，必然奇异。
+
+注意：这里的结论来自明确构造的零输出状态；不能仅由时变递推矩阵秩不足推出。
+</Callout>
+
+### 离散系统：把 A 换成 G
+
+对 $x(k+1)=Gx(k),\ y(k)=Cx(k)$，能观矩阵为 $Q_o = [C;\ CG;\ \dots;\ CG^{n-1}]$，列秩等于 $n$ 时完全能观。例如 $G=\operatorname{diag}(1,2),\ C=[1,0]$ 时，$Q_o = \begin{bmatrix}1 & 0\\ 1 & 0\end{bmatrix}$，第二个状态始终不进入输出，所以不可观。
+
+### 对偶原理
+
+系统能观测性可以转化为另一个对偶系统的能控性问题。原系统完全能观，当且仅当对偶系统完全能控。这也解释了能观矩阵与能控矩阵为何具有转置对应关系。
+
+## 7. 约当块：重特征值下的状态链
+
+约当块是一个特征值加上一条链式耦合。二阶例子为：
+
+$$
+J_2(\lambda) = \begin{bmatrix}\lambda & 1\\ 0 & \lambda\end{bmatrix},\qquad \dot x_1 = \lambda x_1 + x_2,\quad \dot x_2 = \lambda x_2
+$$
+
+第二个状态按 $e^{\lambda t}$ 演化，并驱动第一个状态，这就是“链”。当块大小大于 1，矩阵指数会出现时间的多项式因子：
+
+$$
+e^{J_2(\lambda)t} = e^{\lambda t}\begin{bmatrix}1 & t\\ 0 & 1\end{bmatrix}
+$$
+
+例如 $\lambda=2$ 时，$e^{Jt} = e^{2t}\begin{bmatrix}1 & t\\ 0 & 1\end{bmatrix}$，所以响应会有 $te^{2t}$ 项。若矩阵是 $2I$，它由两个一阶约当块组成，可对角化，不会有 $te^{2t}$ 项。
+
+**重数怎么读：**同一特征值所有约当块的大小之和等于代数重数；约当块个数等于几何重数。重特征值不一定导致大于一阶的约当块；只有线性无关特征向量不足时，才会出现更长的广义特征向量链。
+
+**广义特征向量从哪里来：**对上三角块 $J_2(\lambda)$，取特征向量 $v_1=[1,0]^T$ 和广义特征向量 $v_2=[0,1]^T$。直接相乘得 $(J-\lambda I)v_1=0$、$(J-\lambda I)v_2=v_1$。所以列基 $[v_1,v_2]$ 下，广义特征向量链正好产生上超对角线为 1 的块。若改用 $\lambda I-J$ 写法，第二个等式会变成 $(\lambda I-J)v_2=-v_1$；两种写法只差符号，不能混用。
+
+**和能观测性的联系：**对这个单块，写输出矩阵在该块上的部分为 $C=[c_1,c_2]$。由矩阵指数公式，$Ce^{Jt} = e^{\lambda t}[c_1,\ c_1t+c_2]$。若 $c_1\ne0$，两个列函数不可能线性相关：若 $ac_1 + b(c_1t+c_2) = 0$ 对所有 $t$ 成立，比较 $t$ 的系数得 $bc_1=0$，所以 $b=0$，再得 $a=0$。因此该约当块可观。
+
+一般情形下，每个块对应的输出首列必须非零；同一特征值有多个块时，这些首列向量还必须线性无关，否则不同块的同特征值输出会有不可区分的组合。这里的“首列”对应上三角约当块的约定；若教材采用下三角形式，首末方向会对调。
+
+## 8. 符号速查
+
+| 符号 | 含义 |
+| --- | --- |
+| $t$ | 连续时间变量；$e^{At}$ 表示状态经过时间 $t$ 的变化。离散系统用整数步数 $k$ |
+| $x(t)$ | 时刻 $t$ 的状态向量；例题 01 有两个状态 $x_1(t), x_2(t)$ |
+| $x_0 = x(0)$ | 初始状态。判断能观测性时，把它看作需要从输出中辨认的未知量 |
+| $A$ | 状态矩阵，描述状态之间的动态关系；$n$ 阶系统的 $A$ 是 $n\times n$ 方阵 |
+| $B,\ u(t)$ | 输入矩阵与外部输入；判断能观测性时通常令输入为零 |
+| $C$ | 输出矩阵，把状态映射成测量值 $y(t)$；输出维数为 $p$ 时有 $p$ 行 |
+| $y(t)$ | 系统输出，$y(t)=Cx(t)$，是用来推断未知初态的已知数据 |
+| $e^{At}$ | 状态转移矩阵：零输入时 $x(t)=e^{At}x_0$；不是逐元素取指数 |
+| $\Phi(t,t_0)$ | 时变系统的状态转移矩阵；零输入时 $x(t)=\Phi(t,t_0)x(t_0)$ |
+| $P,\ P^{-1}$ | $P$ 的列由 $A$ 的线性无关特征向量组成；$P^{-1}$ 把原坐标变到特征向量坐标 |
+| $\Lambda,\ v_i$ | $\Lambda=\operatorname{diag}(\lambda_1,\dots,\lambda_n)$；$v_i$ 满足 $Av_i=\lambda_iv_i$ |
+| $a,\ b$ | 例题 01 中临时记 $a=e^{-t},\ b=e^{-3t}$，不是新的系统参数 |
+| $n,\ p$ | 状态数（系统阶数）；输出分量数 |
+| $Q_o$ | 能观测矩阵 $[C;\,CA;\,\dots;\,CA^{n-1}]$，完全能观当且仅当列秩为 $n$ |
+| $W_o$ | 能观测格拉姆矩阵 $\int_{t_0}^{t_1}\Phi^TC^TC\Phi\,dt$，正定（非奇异）当且仅当该区间完全能观 |
+| $\operatorname{rank}M$ | 矩阵 $M$ 的秩，即线性无关行或列的最大个数 |
+| $\lambda,\ v$ | $A$ 的特征值和特征向量，$Av=\lambda v$ |
+| $G,\ k$ | 离散系统 $x(k+1)=Gx(k)$ 的状态矩阵和步数 |
+| $s,\ T$ | 拉普拉斯变换复变量；格拉姆矩阵积分区间 $[0,T]$ 的终点 |
+| $t_0,\ t_1$ | 时变系统观察区间的起点和终点 |
+| $N_k(t)$ | 时变系统秩判据中的递推矩阵；下标 $k$ 是递推阶数，不是时间步 |
+
+<Callout kind="tip" title="判断顺序记忆">
+定常连续系统先算 $Q_o$ 的秩；想找出具体不可观模态时用 PBH 或约当判据；单输出系统可观察是否存在零极点相消；时变系统看格拉姆矩阵或充分秩条件；离散系统把矩阵幂改为 $G^k$。
+</Callout>
+
+## 9. 依据与勘误说明
+
+- **主要依据：**《第三章 线性系统的能控性和能观测性》课件。本文例题对应课件第 68–70 页（2 阶系统与矩阵指数）、第 78–80 页（时变秩递推）、第 89–91 页（3 阶完全能观例题）、第 87–88 页（约当判据）和第 184–186 页（零极点相消）。
+- **教材对照：**郑大钟《线性系统理论》第四章中连续定常与时变系统能观测性判据、约当规范型及结构分解相关内容。不同版次页码可能不同，涉及具体例题时以课件页码为准。
+- **两处严谨性说明：**课件把 $Ce^{At}$ 写作“行线性无关”，容易和固定时刻的矩阵秩混淆，本文按定义写成“列函数组线性无关”；时变递推矩阵满秩是充分条件，课件例题由秩不足直接判不可观有逻辑跳步，本文另用非零初态构造零输出轨迹补足证明。

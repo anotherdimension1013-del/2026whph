@@ -1,6 +1,9 @@
 # 学习手账
 
-使用 Astro 构建的中文学习笔记博客。当前首页整理线性系统理论中的能观测性、矩阵指数与约当块。
+使用 Astro 构建的中文学习笔记博客。首页是笔记目录，目前包括：
+
+- 能观测性学习笔记（线性系统理论）：/observability/
+- SAR 学习笔记（合成孔径雷达）：/sar/
 
 ## 本地预览
 
@@ -31,4 +34,15 @@ Astro 的 site 和 base 已按项目站点地址配置。新增站内页面链�
 
 ## 更新笔记
 
-当前长篇笔记和首页布局位于 src/pages/index.astro。提交并推送到 master 后，GitHub Actions 会自动更新线上博客。后续笔记增多时，可以将每篇笔记拆成独立的 Markdown 内容，再由首页按日期、主题和摘要生成列表。
+每篇笔记是 src/content/notes/ 下的一个 .mdx 文件，文件名即网址（sar.mdx → /sar/）。首页列表、导航栏、目录和上下篇翻页都会自动生成。
+
+- 头部字段（frontmatter）：title、heading、short、tagline、description、eyebrow、course、question、order、status（可选），含义见 src/content.config.ts。
+- 公式：行内用 `$...$`，独立公式用 `$$...$$`，构建时由 KaTeX 渲染；教材编号用 `\tag{1-1-1}`。
+- 二级标题 `##` 作为章节，会进入“本页目录”。
+- 可直接使用的组件（无需 import）：
+  - `<Callout kind="exam|extra|tip" title="...">…</Callout>`：必考 / 补充 / 要点便签，不写 kind 为普通说明；
+  - `<Formula meaning="..." point="...">$$…$$</Formula>`：公式卡片（含义 + 考点）；
+  - `<Example n="01" title="...">…</Example>`：例题框；
+  - `<Quiz q="问题">答案</Quiz>`：可折叠自测题。
+
+样式统一在 src/styles/notes.css，页面框架在 src/layouts/Base.astro 和 src/pages/[slug].astro。

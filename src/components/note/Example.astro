@@ -1,0 +1,8 @@
+---
+interface Props { n: string; title: string; id?: string }
+const { n, title, id } = Astro.props;
+---
+<section class="example" id={id}>
+  <header class="example-heading"><span class="example-number">例题 {n}</span><span>{title}</span></header>
+  <div class="example-body"><slot /></div>
+</section>

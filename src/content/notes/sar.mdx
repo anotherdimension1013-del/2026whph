@@ -1,0 +1,131 @@
+---
+title: SAR 学习笔记
+heading: SAR 成像
+short: SAR
+tagline: 从分辨率说起。
+description: 合成孔径雷达（SAR）核心考点：距离分辨率、方位分辨率、线性调频与脉冲压缩。
+eyebrow: SYNTHETIC APERTURE RADAR
+course: SAR 原理 · 第一章
+question: "想看得清，\n又想看得远，怎么办？"
+order: 2
+status: 更新中
+---
+
+## 1-1 雷达分辨率的概念
+
+<Callout title="一句话主线">
+分辨率分**距离向**和**方位向**。两个方向都面临“分辨率越好，代价越大”的矛盾，最终都靠**线性调频信号 + 脉冲压缩**解决。
+</Callout>
+
+### 两个定义
+
+- **距离分辨率** $\rho_R$：同一方向上，两个大小相等的目标之间**最小可区分的距离**。
+- **方位分辨率** $\rho_a$：距离相等、大小相同的两个目标之间，在**方位向上**的最小可区分距离。
+
+### 距离向分辨率
+
+<Formula meaning="用回波时延测距" point="乘 ½ 是因为电波要往返一趟">
+$$
+R = \frac{1}{2}\,c\,t_R \tag{1-1-1}
+$$
+</Formula>
+
+<Formula meaning="简单脉冲：两个回波至少相隔 τ 才能分开" point="只是粗略描述；τ 越窄，分辨率越好">
+$$
+\rho_R = \frac{c\,\tau}{2} \tag{1-1-2}
+$$
+</Formula>
+
+<Formula meaning="匹配滤波 / 模糊函数理论的结论" point="分辨率只由信号带宽 Δfₛ 决定，与脉宽无关">
+$$
+\rho_R = \frac{c}{2\,\Delta f_s} \tag{1-1-3}
+$$
+</Formula>
+
+<Callout kind="exam" title="时宽与分辨率的矛盾">
+脉宽 $\tau$ 变窄 → 分辨率提高，但发射功率（能量）不够 → 限制了雷达**作用距离**。
+
+**解决：**寻找既有**大带宽**（保证分辨率）、又有**大时宽**（保证平均功率和作用距离）的波形，即**线性调频（LFM / Chirp）信号**。
+</Callout>
+
+<Callout title="理论来源（了解，可能考填空）">
+- 1948 年，**香农（Claude E. Shannon）**发表《通信的数学理论》（*A Mathematical Theory of Communication*），创立信息论；
+- 1953 年，**伍德沃德（Philip M. Woodward）**首先把概率论和信息论引入雷达领域；
+- **诺斯（D. O. North）**指出：在平稳白色高斯噪声中检测单一目标，接收机的最佳形式是**匹配滤波器**；
+- 在匹配滤波器基础上建立了完整的**模糊函数理论**，得出式 (1-1-3)。
+</Callout>
+
+### 方位向分辨率（真实孔径）
+
+<Formula meaning="R 为雷达与目标距离，β 为天线方位向波束角宽度" point="波束越窄，方向性越好，方位分辨率越高">
+$$
+\rho_a = \beta R \tag{1-1-4}
+$$
+</Formula>
+
+<Callout kind="exam" title="真实孔径的缺陷">
+$\rho_a$ 随 $R$ 增大而**线性变差**，而雷达与目标距离通常很大，所以方位分辨率难以提高。
+
+**出路：**方位向回波也是一个**线性调频信号（多普勒信号）**，同样可以用脉冲压缩提高分辨率，这就是**合成孔径**的思想（后文展开）。
+</Callout>
+
+<Callout kind="extra" title="β ≈ λ/D 是怎么来的？（原教材本节未给出）">
+把宽度为 $D$ 的天线看成一排同相发射的小辐射源：
+
+- 正前方：各点到目标路程相同 → 同相叠加 → 主瓣中心；
+- 偏离角 $\theta$：天线两端的路程差为 $D\sin\theta$；
+- 当 $D\sin\theta = \lambda$ 时，把天线分成前后两半，对应点恰好相差半个波长、两两抵消 → 第一个零点。
+
+小角度下 $\sin\theta \approx \theta$，工程上取波束宽度
+
+$$
+\beta \approx \frac{\lambda}{D}
+\quad\Longrightarrow\quad
+\rho_a \approx \frac{\lambda R}{D}
+$$
+
+（严格地，3 dB 宽度约 $0.886\,\lambda/D$，零点到零点为 $2\lambda/D$。）
+
+例：$\lambda = 3\ \text{cm}$，$D = 3\ \text{m}$，$R = 100\ \text{km}$ → $\rho_a \approx 1\ \text{km}$。要做到 1 m 分辨率需 $D \approx 3\ \text{km}$，不现实，所以需要“合成”一个长天线。
+</Callout>
+
+### 自测题
+
+<Quiz q="① 脉宽 τ = 1 μs 的简单脉冲，距离分辨率是多少？">
+$\rho_R = \dfrac{c\tau}{2} = \dfrac{3\times10^8 \times 10^{-6}}{2} = $ **150 m**
+</Quiz>
+
+<Quiz q="② 带宽 Δfₛ = 100 MHz 的线性调频信号，距离分辨率是多少？">
+$\rho_R = \dfrac{c}{2\Delta f_s} = \dfrac{3\times10^8}{2\times10^8} = $ **1.5 m**
+</Quiz>
+
+<Quiz q="③ 测距公式 R = ½ct_R 中为什么有 ½？">
+$t_R$ 是电波从雷达到目标再返回的**往返时间**，单程距离只占一半。
+</Quiz>
+
+<Quiz q="④ 为什么不直接把脉冲做得很窄来提高距离分辨率？">
+脉冲太窄，发射能量（平均功率）不足，限制了作用距离。应采用大时宽带宽积的 LFM 信号，再做脉冲压缩。
+</Quiz>
+
+<Quiz q="⑤ 真实孔径雷达方位分辨率的主要问题是什么？如何解决？">
+$\rho_a = \beta R$ 随距离增大而变差；利用方位向回波的线性调频（多普勒）特性做方位向脉冲压缩，即合成孔径。
+</Quiz>
+
+## 符号速查
+
+| 符号 | 含义 |
+| --- | --- |
+| $c$ | 光速，约 $3\times10^8\ \text{m/s}$ |
+| $t_R$ | 回波时延：从发射脉冲到收到回波的往返时间 |
+| $R$ | 雷达与目标之间的距离（斜距） |
+| $\tau$ | 发射脉冲宽度（时宽） |
+| $\Delta f_s$ | 雷达信号带宽；匹配滤波后距离分辨率由它决定 |
+| $\rho_R$ | 距离向分辨率 |
+| $\rho_a$ | 方位向分辨率 |
+| $\beta$ | 天线方位向波束角宽度（弧度），$\beta \approx \lambda/D$ |
+| $\lambda,\ D$ | 雷达波长；天线方位向孔径（尺寸） |
+| LFM | 线性调频信号（Linear Frequency Modulation，又称 Chirp） |
+
+<Callout kind="tip" title="一句话记忆">
+距离向 $\rho_R = c/(2\Delta f_s)$ 靠**带宽**；方位向 $\rho_a = \beta R \approx \lambda R/D$ 被**距离**拖累。两个方向都用**线性调频 + 脉冲压缩**解决。
+</Callout>

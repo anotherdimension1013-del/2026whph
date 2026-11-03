@@ -1,0 +1,17 @@
+---
+/**
+ * 笔记便签。kind:
+ *  - note  一般说明（默认）
+ *  - exam  必考
+ *  - extra 补充（教材之外的内容）
+ *  - tip   要点 / 技巧
+ */
+interface Props { kind?: 'note' | 'exam' | 'extra' | 'tip'; title?: string }
+const { kind = 'note', title } = Astro.props;
+const labels = { note: '', exam: '必考', extra: '补充', tip: '要点' } as const;
+const label = labels[kind];
+---
+<aside class={`callout callout-${kind}`}>
+  {(label || title) && <p class="callout-title">{label && <span class="badge">{label}</span>}{title}</p>}
+  <div class="callout-body"><slot /></div>
+</aside>

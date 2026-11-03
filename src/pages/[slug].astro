@@ -1,0 +1,55 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { noteComponents } from '../components/note';
+
+export async function getStaticPaths() {
+  const notes = (await getCollection('notes')).sort((a, b) => a.data.order - b.data.order);
+  return notes.map((note, i) => ({
+    params: { slug: note.id },
+    props: { note, prev: notes[i - 1], next: notes[i + 1] },
+  }));
+}
+
+const { note, prev, next } = Astro.props;
+const { Content, headings } = await render(note);
+// 二级标题少时（如 SAR 每章一节），把三级标题也放进目录
+const h2 = headings.filter((h) => h.depth === 2);
+const toc = h2.length >= 4 ? h2 : headings.filter((h) => h.depth <= 3);
+const d = note.data;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<Base title={d.title} description={d.description} current={note.id}>
+  <section class="hero shell" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-line"></span> {d.eyebrow} · STUDY NOTES</p>
+      <h1 id="hero-title">{d.heading}，<br /><span>{d.tagline}</span></h1>
+      <p class="hero-description">{d.description}</p>
+    </div>
+    <div class="hero-note" aria-label="本篇笔记的核心问题">
+      <div class="note-tape" aria-hidden="true"></div>
+      <span class="note-label">ONE QUESTION</span>
+      <p set:html={d.question.split('\n').join('<br />')} />
+      <div class="note-footer"><span>{d.course}</span><span aria-hidden="true">✎</span></div>
+    </div>
+  </section>
+
+  <div class="reading">
+    {toc.length > 1 && (
+      <details class="toc" open>
+        <summary>本页目录 <span>{h2.length} 节</span></summary>
+        <ol>{toc.map((h) => <li class:list={{ sub: h.depth === 3 }}><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+      </details>
+    )}
+
+    <article class="prose">
+      <Content components={noteComponents} />
+    </article>
+
+    <nav class="pager" aria-label="笔记翻页">
+      {prev ? <a href={`${base}${prev.id}/`}><small>← 上一篇</small>{prev.data.title}</a> : <span />}
+      {next ? <a class="next" href={`${base}${next.id}/`}><small>下一篇 →</small>{next.data.title}</a> : <span />}
+    </nav>
+  </div>
+</Base>
