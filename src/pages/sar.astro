@@ -1,0 +1,131 @@
+---
+import '../styles/notes.css';
+
+const base = '/2026whph/';
+
+const glossary = [
+  ['c', '光速，约 3×10⁸ m/s。'],
+  ['t_R', '回波时延：从发射脉冲到收到回波的时间差（往返时间）。'],
+  ['R', '雷达与目标之间的距离（斜距）。'],
+  ['τ', '发射脉冲宽度（时宽）。'],
+  ['Δf_s', '雷达信号带宽；匹配滤波后距离分辨率由它决定。'],
+  ['ρ_R', '距离向分辨率：同一方向上两个等大目标的最小可区分距离。'],
+  ['ρ_a', '方位向分辨率：等距离、等大小两目标在方位向上的最小可区分距离。'],
+  ['β', '天线方位向波束角宽度（弧度），β ≈ λ/D。'],
+  ['λ、D', 'λ 为雷达波长；D 为天线方位向孔径（尺寸）。'],
+  ['LFM', '线性调频信号（Linear Frequency Modulation，又称 Chirp），频率随时间线性变化。'],
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f5ef" />
+    <meta name="description" content="合成孔径雷达（SAR）学习笔记：距离分辨率、方位分辨率、线性调频与脉冲压缩的核心考点。" />
+    <link rel="canonical" href="https://anotherdimension1013-del.github.io/2026whph/sar/" />
+    <link rel="icon" type="image/svg+xml" href="/2026whph/favicon.svg" />
+    <title>SAR 学习笔记 · 学习手账</title>
+  </head>
+  <body>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <header class="site-header shell">
+      <a class="brand" href={base} aria-label="学习手账首页"><span class="brand-icon" aria-hidden="true">✳</span><span>学习手账<span class="brand-period">.</span></span></a>
+      <nav aria-label="主导航"><a href={base}>能观测性</a><a class="active" href="#resolution">SAR 笔记</a><a href="#glossary">符号表</a></nav>
+      <a class="header-link" href="#quiz">自测题 <span aria-hidden="true">↓</span></a>
+    </header>
+
+    <main id="home" class="shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> SYNTHETIC APERTURE RADAR · STUDY NOTES</p>
+          <h1 id="hero-title">SAR 成像，<br /><span>从分辨率说起。</span></h1>
+          <p class="hero-description">只保留必要的考点和知识点：每节先给一句话主线，再整理公式卡片、必考便签和自测题。公式编号与教材保持一致，方便对照。</p>
+          <a class="text-link" href="#resolution">从 1-1 开始 <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-note" aria-label="本篇笔记的核心问题">
+          <div class="note-tape" aria-hidden="true"></div>
+          <span class="note-label">ONE QUESTION</span>
+          <p>想看得清，<br />又想看得远，怎么办？</p>
+          <div class="note-footer"><span>SAR 原理 · 第一章</span><span aria-hidden="true">✎</span></div>
+          <span class="note-doodle" aria-hidden="true">✳</span>
+        </div>
+        <span class="hero-scribble" aria-hidden="true">chirp it ↗</span>
+      </section>
+
+      <div class="content-layout">
+        <article class="lesson">
+          <header class="lesson-heading">
+            <div><p class="eyebrow">1-1 · RESOLUTION</p><h2 id="resolution">1-1 雷达分辨率的概念</h2></div>
+            <span class="lesson-tag">核心概念</span>
+          </header>
+
+          <aside class="callout"><strong>一句话主线</strong><br />分辨率分<strong>距离向</strong>和<strong>方位向</strong>。两个方向都面临“分辨率越好，代价越大”的矛盾，最终都靠<strong>线性调频信号 + 脉冲压缩</strong>解决。</aside>
+
+          <h3 id="definition">1. 两个定义</h3>
+          <ul class="plain-list">
+            <li><strong>距离分辨率 <span class="math">ρ_R</span>：</strong>同一方向上，两个大小相等的目标之间<strong>最小可区分的距离</strong>。</li>
+            <li><strong>方位分辨率 <span class="math">ρ_a</span>：</strong>距离相等、大小相同的两个目标之间，在<strong>方位向上</strong>的最小可区分距离。</li>
+          </ul>
+
+          <h3 id="range">2. 距离向分辨率</h3>
+          <div class="table-scroll">
+            <table class="formula-table">
+              <thead><tr><th>公式</th><th>含义</th><th>考点</th></tr></thead>
+              <tbody>
+                <tr><td>R = ½·c·t_R <span class="eq-no">(1-1-1)</span></td><td>用回波时延测距</td><td>乘 ½ 是因为电波<strong>往返</strong>一趟</td></tr>
+                <tr><td>ρ_R = cτ/2 <span class="eq-no">(1-1-2)</span></td><td>简单脉冲：两回波至少间隔 τ 才能分开</td><td>粗略描述；τ 越窄分辨率越好</td></tr>
+                <tr><td>ρ_R = c/(2Δf_s) <span class="eq-no">(1-1-3)</span></td><td>匹配滤波 / 模糊函数理论的结论</td><td>分辨率<strong>只由带宽 Δf_s 决定</strong>，与脉宽无关</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="takeaway"><span class="tag-exam">必考</span><strong>时宽与分辨率的矛盾</strong><br />脉冲 τ 变窄 → 分辨率提高，但发射功率（能量）不够 → 限制了雷达作用距离。<br /><strong>解决：</strong>寻找既有<strong>大带宽</strong>（保证分辨率）、又有<strong>大时宽</strong>（保证平均功率和作用距离）的波形——<strong>线性调频（LFM / Chirp）信号</strong>。</aside>
+
+          <aside class="callout"><strong>理论来源（了解，可能考填空）</strong><br />
+            · 1948 年，香农（Claude E. Shannon）发表《通信的数学理论》（A Mathematical Theory of Communication），创立信息论；<br />
+            · 1953 年，伍德沃德（Philip M. Woodward）首先把概率论和信息论引入雷达领域；<br />
+            · 诺斯（D. O. North）指出：平稳白色高斯噪声中检测单一目标，接收机的最佳形式是<strong>匹配滤波器</strong>；<br />
+            · 在匹配滤波器基础上建立了完整的<strong>模糊函数理论</strong>，得出式 (1-1-3)。</aside>
+
+          <h3 id="azimuth">3. 方位向分辨率（真实孔径）</h3>
+          <div class="equation equation-single" role="math" aria-label="rho a 等于 beta 乘 R">
+            <span>ρ_a = β·R</span><span class="eq-no">(1-1-4)</span>
+          </div>
+          <p><span class="math">R</span> 为雷达与目标的距离，<span class="math">β</span> 为天线在方位向上的波束角宽度。波束越窄，方向性越好，方位分辨率越高。</p>
+          <aside class="takeaway"><span class="tag-exam">必考</span><strong>真实孔径的缺陷</strong><br /><span class="math">ρ_a</span> 随 <span class="math">R</span> 增大而线性变差，而雷达与目标距离通常很大，所以方位分辨率难以提高。<br /><strong>出路：</strong>方位向回波也是一个<strong>线性调频信号（多普勒信号）</strong>，同样可用脉冲压缩提高分辨率——这就是<strong>合成孔径</strong>的思想（后文展开）。</aside>
+
+          <div class="supplement" id="beam-width"><span class="tag-extra">补充</span><strong>β ≈ λ/D 是怎么来的？（原教材本节未给出）</strong><br />
+            把宽度为 D 的天线看成一排同相发射的小辐射源：<br />
+            · 正前方：各点到目标路程相同 → 同相叠加 → 主瓣中心；<br />
+            · 偏离角 θ：天线两端的路程差为 <span class="math">D·sinθ</span>；<br />
+            · 当 <span class="math">D·sinθ = λ</span> 时，把天线分成前后两半，对应点恰好相差半个波长、两两抵消 → 第一个零点。<br />
+            小角度下 <span class="math">sinθ ≈ θ = λ/D</span>，工程上取波束宽度 <strong><span class="math">β ≈ λ/D</span></strong>（严格地，3 dB 宽度约 0.886λ/D，零点到零点为 2λ/D）。<br />
+            代入 (1-1-4)：<strong><span class="math">ρ_a ≈ λR/D</span></strong>。例：λ = 3 cm，D = 3 m，R = 100 km → ρ_a ≈ 1 km；要做到 1 m 分辨率需 D ≈ 3 km，不现实 → 需要“合成”一个长天线。</div>
+
+          <h3 id="quiz">4. 自测题</h3>
+          <details class="quiz"><summary>① 脉宽 τ = 1 μs 的简单脉冲，距离分辨率是多少？</summary><div>ρ_R = cτ/2 = 3×10⁸ × 10⁻⁶ / 2 = <strong>150 m</strong>。</div></details>
+          <details class="quiz"><summary>② 带宽 Δf_s = 100 MHz 的线性调频信号，距离分辨率是多少？</summary><div>ρ_R = c/(2Δf_s) = 3×10⁸ / (2×10⁸) = <strong>1.5 m</strong>。</div></details>
+          <details class="quiz"><summary>③ 测距公式 R = ½ct_R 中为什么有 ½？</summary><div>t_R 是电波从雷达到目标再返回的<strong>往返时间</strong>，单程距离只占一半。</div></details>
+          <details class="quiz"><summary>④ 为什么不直接把脉冲做得很窄来提高距离分辨率？</summary><div>脉冲太窄，发射能量/平均功率不足，限制了作用距离。应采用大时宽带宽积的 LFM 信号，再用脉冲压缩。</div></details>
+          <details class="quiz"><summary>⑤ 真实孔径雷达方位分辨率的主要问题是什么？如何解决？</summary><div>ρ_a = βR 随距离增大而变差；利用方位向回波的线性调频（多普勒）特性做方位向脉冲压缩，即合成孔径。</div></details>
+
+          <h2 id="glossary">符号速查</h2>
+          <div class="glossary">
+            {glossary.map(([symbol, meaning]) => <div class="glossary-row"><span class="glossary-symbol">{symbol}</span><span>{meaning}</span></div>)}
+          </div>
+          <div class="summary"><strong>一图记忆：</strong>距离向 ρ_R = c/(2Δf_s) 靠<strong>带宽</strong>；方位向 ρ_a = βR ≈ λR/D 受<strong>距离</strong>拖累 → 两个方向都用<strong>线性调频 + 脉冲压缩</strong>。</div>
+        </article>
+
+        <aside class="sidebar">
+          <section class="side-panel toc-panel" aria-labelledby="toc-title"><div class="panel-heading"><h2 id="toc-title">本篇目录</h2><span aria-hidden="true">⌘</span></div><ol class="toc-list"><li><a href="#resolution">1-1 雷达分辨率</a></li><li><a href="#definition">两个定义</a></li><li><a href="#range">距离向分辨率</a></li><li><a href="#azimuth">方位向分辨率</a></li><li><a href="#beam-width">补充：β ≈ λ/D</a></li><li><a href="#quiz">自测题</a></li><li><a href="#glossary">符号速查</a></li></ol></section>
+          <section class="side-panel now-panel"><span class="now-spark" aria-hidden="true">✳</span><p class="eyebrow">KEY IDEA</p><h2>抓住一个矛盾</h2><p class="now-topic">分辨率 vs. 作用距离</p><p class="now-copy">窄脉冲分得清但传不远；LFM 信号用大带宽换分辨率、用长时宽换能量。</p><div class="now-status"><span></span> 持续更新中</div></section>
+          <section class="about-card"><span class="about-sticker" aria-hidden="true">NOTE</span><p class="eyebrow">STUDY METHOD</p><h2>先记矛盾，<br />再记公式。</h2><p>每个公式都在回答“如何同时看得清又看得远”。理解矛盾，公式自然记住。</p><a href="#quiz">去做自测题 <span aria-hidden="true">↓</span></a></section>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer shell"><span>© {new Date().getFullYear()} 学习手账</span><span>只留考点 <span class="footer-star">✳</span></span><a href="#home">回到顶部 ↑</a></footer>
+  </body>
+</html>
