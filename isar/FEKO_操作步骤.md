@@ -35,11 +35,11 @@
 
 7. **频率**：*Source/Load* 选项卡 → **Frequency**
    - 下拉框选 **Linearly spaced discrete points**（⚠ 不要选 *Continuous (interpolated) range*，那会用自适应采样，频点不等间隔）
-   - Start = `9.75e9`，End = `10.25e9`，Number of frequencies = `101`（步进 5 MHz，带宽 500 MHz，距离分辨率 0.3 m）
+   - Start = `5.05e9`，End = `5.55e9`，Number of frequencies = `101`（C 波段，中心 5.3 GHz，步进 5 MHz，带宽 500 MHz，距离分辨率 0.3 m）
 8. **平面波**：*Source/Load* 选项卡 → **Plane Wave Source**（整个模型**只建一个**平面波源）
     - 勾选 **Loop over multiple directions**
     - θ：Start = `90`，End = `90`，只取 1 个点（雷达在 xy 平面内）
-    - φ：Start = `298.5`，End = `301.5`，Increment = `0.03`（共 101 个方向，总转角 3°，横向分辨率约 0.29 m）
+    - φ：Start = `297.27`，End = `302.73`，Increment = `0.06`（共 92 个方向，总转角 5.46°，横向分辨率约 0.3 m）
     - Magnitude = `1`（V/m），Phase = `0`
     - 极化角 **η = `0`**：VV 极化，θ=90° 时电场沿 −z（竖直）。若要做 HH，改为 `90`
 9. **单站远场请求**：*Request* 选项卡 → **Far Fields**
@@ -48,23 +48,24 @@
     - Label：`Monostatic`
 10. **RL-GO 设置**（已在 Feko 2025 界面核对）：*Solve/Run* 选项卡 → **Solver Settings** → **High frequency** 页 → *RL-GO settings*，保持默认：
     - **Maximum number of ray interactions：不勾选**（不限制反射次数，二面角、桁架的多次反射都会计入）
-    - **Include edge and wedge diffractions：勾选**（计及棱边/劈绕射，天线和太阳翼的边缘回波更真实）
+    - **Include edge and wedge diffractions：不勾选**（为节省时间关闭；平板边缘的回波仍由物理光学电流截断给出）
     - **Activate enhancements for complex structures：勾选**
-    - 射线密度 **Adaptive → Normal (default)**；试算耗时很短的话，正式求解可改为 High
+    - 射线密度 **Adaptive → Low (fewer rays)**：5.3 GHz 实测 0.18 s/点；Normal 为 2.9 s/点，精度更高，可作为最终版本过夜计算
+    - 速度测试结论（11 个角度）：10 GHz/Normal 约 20 s/点；5.3 GHz/Low 0.18 s/点；5.3 GHz/Normal 2.9 s/点。Low 相对 Normal 的 RCS 偏差标准差约 2.9 dB，主要出现在 RCS 低谷处
 11. 右上角 *Model Status* 应显示 **Model is valid**。
 
 ## 3. 试算 → 正式求解
 
-12. **试算（建议先做）**：把第 7 步临时改为 *Single frequency* `10e9`，只算 101 个角度。
+12. **试算（建议先做）**：把第 7 步临时改为 *Single frequency* `5.3e9`，只算 92 个角度（约 20 s）。
     *Solve/Run* → **Feko Solver**，记下 Out 文件末尾的 *total times*。
     完整求解时间 ≈ 试算时间 × 101（另有少量固定开销）。
-13. **正式求解**：频率改回第 7 步的 101 个频点，保存，**Feko Solver**。共 10201 个单站解，预计 3–8 小时（以试算结果为准），可以放到晚上算。
+13. **正式求解**：频率改回第 7 步的 101 个频点，保存，**Feko Solver**。共 9292 个单站解，射线密度 Low 时约 30 分钟（Normal 约 7.5 小时）。
 14. 求解结束后，模型文件夹里应出现 **`radarsat1_Monostatic.ffe`**（文件名可能略有不同，扩展名一定是 `.ffe`）。
 
 ## 4. 检查结果并导出（POSTFEKO）
 
 15. *Solve/Run* → **POSTFEKO**。新建 **Cartesian** 图，把 `Monostatic` 拖进图中：
-    - 横轴 *Plane Wave Phi*，固定 Frequency = 10 GHz，Quantity 选 **Radar cross section (RCS)**，勾 **dB**：得到 RCS 随方位角变化的曲线
+    - 横轴 *Plane Wave Phi*，固定 Frequency = 5.3 GHz，Quantity 选 **Radar cross section (RCS)**，勾 **dB**：得到 RCS 随方位角变化的曲线
     - 横轴改为 *Frequency*：得到 RCS 随频率变化的曲线
     - 截图保存，汇报时会用到
 16. 若第 14 步没有生成 .ffe：⚠ 在 POSTFEKO 中选中 `Monostatic` → *Home* → **Export** → *Data*，格式选 Feko far field (\*.ffe)。
@@ -78,10 +79,10 @@
 ## 5. 附加：全方位 RCS 曲线（汇报用，可选）
 
 18. **File → Save as** 另存为 `radarsat1_rcs360.cfx`，只改两处：
-    - 频率：*Single frequency* `10e9`
+    - 频率：*Single frequency* `5.3e9`
     - 平面波 φ：Start = `0`，End = `359.5`，Increment = `0.5`（720 个方向）
 19. 求解后把 .ffe 复制到 `isar/data/`，运行 `plot_rcs_360.m`，画出 0°~360° 的 RCS 曲线。
-    预期：φ=270° 时 SAR 天线平板（约 14 m×2 m）正对雷达，出现全方位最强的镜面峰（理论上可达 70 dBsm 量级）；
+    预期：φ=270° 时 SAR 天线平板（约 14 m×2 m）正对雷达，出现全方位最强的镜面峰（理论上可达 65 dBsm 量级）；
     φ=90° 时雷达从背面看，会看到天线背面的桁架和本体；太阳翼接近水平，雷达在 xy 平面内只能看到它的侧棱，回波较弱。
 
 ## 常见问题

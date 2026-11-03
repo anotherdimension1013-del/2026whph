@@ -18,7 +18,7 @@ os_ua = 1.5; % 不模糊窗口相对目标尺寸的余量：c/(2*delta_f)>os_ua*
 phi_c_deg = 300; % 中心观测方位角（FEKO的phi），deg；270°为正对-y方向（平板镜面闪烁）
 theta_inc_deg = 90; % 雷达俯仰：FEKO的theta，90°表示雷达位于xy平面内（转台平面）
 pol_mode = 'VV'; % 'VV'：eta=0°，接收Etheta；'HH'：eta=90°，接收Ephi
-t_per_point = 1.0; % 每个(频点,角度)单站解的估计耗时，s；平板实测0.16 s/点，试算后替换
+t_per_point = 0.18; % 每个(频点,角度)单站解的耗时，s；5.3 GHz、RL-GO射线密度Low实测（Normal约2.9 s/点）
 
 %% 目标模型
 % Model.outline_xy：俯视轮廓（xy平面投影），N×2，多个多边形之间用NaN行分隔，可直接plot。
@@ -50,7 +50,7 @@ target_radius = L/2; % 最大转动半径，m
 
 %% 电磁波与距离向参数（步进频）
 c = 3e8; % 光速，m/s
-f0 = 10e9; % 中心频率，Hz（X波段）
+f0 = 5.3e9; % 中心频率，Hz（C波段，RADARSAT-1自身SAR的工作频率；试算表明比X波段射线数少、计算快得多）
 lambda = c/f0; % 中心波长，m
 Br = c/(2*rho_design); % 扫频带宽，Hz
 rho_r = c/(2*Br); % 距离向理论分辨率，m（矩形窗）
@@ -70,17 +70,15 @@ f_axis = f_min+(0:Nf-1)*delta_f; % 频率轴，Hz
 % 横向分辨率 rho_a = lambda/(2*theta_m)，令 rho_a ≈ rho_r
 res_a = rho_design; % 希望达到的横向分辨率，m
 theta_m = lambda/(2*res_a); % 所需总转角，rad
-theta_m_deg = ceil(theta_m*180/pi*2)/2; % 向上取到0.5°，便于在FEKO中填写
-theta_m = theta_m_deg*pi/180;
-rho_a = lambda/(2*theta_m); % 实际理论横向分辨率，m
-
 % 角度步进：横向不模糊窗 X_ua = lambda_min/(2*delta_phi) 必须大于 os_ua*L
 delta_phi_max = lambda_min/(2*os_ua*L); % rad
-delta_phi_deg = floor(delta_phi_max*180/pi*100)/100; % 向下取到0.01°
-% 再微调，使总转角恰好是步进的整数倍
-Naz = ceil(theta_m_deg/delta_phi_deg)+1; % 角度点数（含两端点）
-delta_phi_deg = theta_m_deg/(Naz-1);
+delta_phi_deg = floor(delta_phi_max*180/pi*100)/100; % 向下取到0.01°，便于在FEKO中填写
 delta_phi = delta_phi_deg*pi/180;
+% 角度点数：使总转角不小于所需值；再由步进反推实际总转角（保证FEKO中的数都是整齐的）
+Naz = ceil(theta_m*180/pi/delta_phi_deg)+1; % 角度点数（含两端点）
+theta_m_deg = delta_phi_deg*(Naz-1);
+theta_m = theta_m_deg*pi/180;
+rho_a = lambda/(2*theta_m); % 实际理论横向分辨率，m
 X_ua = lambda_min/(2*delta_phi); % 横向不模糊窗（最高频处，最保守），m
 phi_start_deg = phi_c_deg-theta_m_deg/2; % FEKO中phi扫描起点，deg
 phi_end_deg = phi_c_deg+theta_m_deg/2; % FEKO中phi扫描终点，deg
