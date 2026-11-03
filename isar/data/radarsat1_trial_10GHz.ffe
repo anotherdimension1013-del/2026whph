@@ -1,0 +1,799 @@
+##File Type: Far Field
+##File Format: 8
+##Source: radarsat1
+##Date: 2026-11-03 10:31:14  
+** File exported by Altair Feko - FEKO Version 2025-4940 from 2025-01-22 [Release/2025.0.0 @57f8115f2f7d]
+
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98500000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98500000E+002   -2.19487567E+000   -2.21837133E+000   -7.56522819E-004    1.73881578E-002    1.22379492E+002    3.80660948E-003    1.22383299E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98530000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98530000E+002    5.90489850E-001   -2.26078270E+000    1.61968487E-002    8.76361092E-003    6.86100797E+001    4.26174364E-003    6.86143414E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98560000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98560000E+002    4.36291359E+000   -3.58362382E+000    1.38722758E-002   -1.52168802E-003    4.00582905E+002    2.44737068E-003    4.00585352E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98590000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98590000E+002    5.85570275E+000   -6.00274486E+000    2.14071467E-002   -1.31353730E-002    8.83694835E+002    7.92691624E-003    8.83702762E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98620000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98620000E+002    3.93531683E+000   -7.35597155E+000    1.93186765E-002   -2.69416123E-002    8.74582148E+002    1.38112171E-002    8.74595959E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98650000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98650000E+002    3.79264200E-001   -5.79086492E+000    1.99445089E-002   -3.19387802E-002    4.23209700E+002    1.78174688E-002    4.23227517E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98680000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98680000E+002   -1.66172535E+000   -2.22732958E+000    1.77497159E-002   -4.54577538E-002    9.70416379E+001    2.99263064E-002    9.70715642E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98710000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98710000E+002   -1.63360494E+000    1.41102535E+000    2.04766064E-002   -6.68115906E-002    5.85549849E+001    6.13625937E-002    5.86163475E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98740000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98740000E+002   -7.20553060E-001    3.49149223E+000    3.88711600E-002   -5.72667478E-002    1.59714985E+002    6.01985385E-002    1.59775184E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98770000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98770000E+002   -4.36125573E-001    3.66575083E+000    3.83774094E-002   -3.26404289E-002    1.71253677E+002    3.18962528E-002    1.71285573E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98800000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98800000E+002   -1.63435042E+000    1.68044091E+000    1.59793063E-002   -1.05788403E-002    6.90519922E+001    4.61500074E-003    6.90566072E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98830000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98830000E+002   -4.54371778E+000   -8.88890499E-001   -1.13008765E-002   -7.81783775E-003    2.69366407E+002    2.37288762E-003    2.69368780E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98860000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98860000E+002   -7.78734491E+000   -1.69760343E+000   -3.41207022E-002   -1.91717551E-002    7.98273643E+002    1.92488965E-002    7.98292892E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98890000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98890000E+002   -8.98251979E+000    2.20389739E-001   -3.65294146E-002   -1.51620897E-002    1.01453630E+003    1.96574114E-002    1.01455596E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98920000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98920000E+002   -6.63381144E+000    2.78721280E+000   -3.81490925E-002    4.53126027E-003    6.50636523E+002    1.85465252E-002    6.50655069E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98950000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98950000E+002   -2.32497327E+000    3.37474215E+000   -4.74473005E-002    2.15000542E-002    2.11044470E+002    3.40988298E-002    2.11078569E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.98980000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.98980000E+002    1.38934875E+000    1.37384436E+000   -5.81099337E-002    2.78738966E-002    4.79751141E+001    5.21971662E-002    4.80273113E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99010000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99010000E+002    3.06528690E+000   -1.10177450E+000   -6.37246444E-002    2.30141328E-002    1.33327820E+002    5.76856807E-002    1.33385506E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99040000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99040000E+002    3.29493051E+000   -2.23348039E+000   -5.33759959E-002    3.66701748E-002    1.99114164E+002    5.26995716E-002    1.99166864E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99070000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99070000E+002    2.62087625E+000   -7.90495282E-001   -3.57487464E-002    4.76578721E-002    9.41708117E+001    4.46011361E-002    9.42154129E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99100000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99100000E+002    1.96311911E+000    2.63814499E+000   -3.04986871E-002    5.61177553E-002    1.35888279E+002    5.12629051E-002    1.35939541E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99130000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99130000E+002    2.77832435E+000    6.52868496E+000   -2.85069498E-002    5.13062759E-002    6.32626453E+002    4.32908972E-002    6.32669744E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99160000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99160000E+002    5.00642395E+000    7.82569984E+000   -1.72780668E-002    3.06810545E-002    1.08455141E+003    1.55805238E-002    1.08456699E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99190000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99190000E+002    6.52838138E+000    5.43700311E+000    3.84759031E-003    3.67383069E-002    9.07050259E+002    1.71469025E-002    9.07067406E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99220000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99220000E+002    5.24140985E+000    1.41940267E+000    1.98330215E-002    3.53484070E-002    3.70545590E+002    2.06447702E-002    3.70566235E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99250000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99250000E+002    1.76093513E+000   -1.21755724E+000    2.69118161E-002    1.57755815E-002    5.75959261E+001    1.22285214E-002    5.76081546E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99280000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99280000E+002   -1.75770119E+000   -1.68895180E+000    4.14534056E-002    7.19416626E-004    7.46702748E+001    2.16003645E-002    7.46918751E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99310000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99310000E+002   -3.54904296E+000   -1.29203555E+000    5.76076503E-002   -6.92824073E-003    1.79260053E+002    4.23064697E-002    1.79302360E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99340000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99340000E+002   -3.07258353E+000   -1.29507444E+000    6.63931353E-002   -9.83886218E-003    1.39712750E+002    5.66096351E-002    1.39769359E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99370000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99370000E+002   -3.56575104E-001   -2.28205122E+000    6.70229175E-002   -9.89501671E-003    6.70403753E+001    5.76794253E-002    6.70980547E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99400000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99400000E+002    2.87664042E+000   -4.99077703E+000    5.96065237E-002   -1.10613188E-002    4.16988814E+002    4.61850617E-002    4.17034999E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99430000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99430000E+002    3.76356249E+000   -8.26973756E+000    4.75365278E-002   -4.22188287E-003    1.03739111E+003    2.86204842E-002    1.03741974E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99460000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99460000E+002    1.50867017E+000   -9.41266239E+000    3.92175270E-002   -8.38560989E-003    1.14196012E+003    2.02109070E-002    1.14198033E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99490000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99490000E+002   -1.45835833E+000   -6.94219771E+000    3.96542801E-002   -1.60778629E-002    6.32351306E+002    2.30085169E-002    6.32374314E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99520000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99520000E+002   -2.48291666E+000   -2.53730225E+000    3.28671896E-002   -2.87124025E-002    1.58371177E+002    2.39345907E-002    1.58395112E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99550000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99550000E+002   -1.07074450E+000    1.37935315E+000    1.63226370E-002   -3.34106821E-002    3.83162325E+001    1.73755477E-002    3.83336080E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99580000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99580000E+002    9.37500967E-001    3.39825251E+000   -1.34819973E-003   -1.95315559E-002    1.56162642E+002    4.81668131E-003    1.56167459E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99610000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99610000E+002    1.50105722E+000    3.47559957E+000   -2.26791014E-002   -9.81870785E-003    1.80113352E+002    7.67489405E-003    1.80121027E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99640000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99640000E+002   -2.04342245E-001    2.25660803E+000   -3.15949057E-002   -1.24163467E-002    6.45161936E+001    1.44815324E-002    6.45306751E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99670000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99670000E+002   -4.03499935E+000    1.32130342E+000   -4.09516022E-002   -1.75102805E-002    2.26534748E+002    2.49272013E-002    2.26559675E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99700000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99700000E+002   -7.89142900E+000    1.88172263E+000   -5.76727466E-002   -1.52850938E-002    8.27062363E+002    4.47335122E-002    8.27107096E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99730000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99730000E+002   -9.06571973E+000    4.23195385E+000   -7.13826185E-002   -9.17206112E-003    1.25785232E+003    6.50888352E-002    1.25791741E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99760000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99760000E+002   -6.22882060E+000    5.94951944E+000   -7.36931861E-002   -1.53188511E-002    9.32361712E+002    7.11929239E-002    9.32432905E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99790000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99790000E+002   -1.90493671E+000    5.06473225E+000   -5.51203449E-002   -2.20550582E-002    3.67947059E+002    4.42924102E-002    3.67991352E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99820000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99820000E+002    1.08347918E+000    1.60565904E+000   -2.63060028E-002   -7.66653570E-003    4.71498781E+001    9.43459926E-003    4.71593127E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99850000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99850000E+002    2.05459113E+000   -1.84819448E+000   -2.71520842E-002    1.25825145E-002    9.59714778E+001    1.12538804E-002    9.59827316E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99880000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99880000E+002    1.80811835E+000   -3.54566732E+000   -3.25852666E-002    2.46591743E-002    1.99064489E+002    2.09842616E-002    1.99085474E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99910000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99910000E+002    1.83563539E+000   -2.64631023E+000   -2.21291863E-002    3.21767133E-002    1.30344869E+002    1.91642400E-002    1.30364033E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99940000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99940000E+002    2.65307747E+000    5.47008512E-001   -2.56291556E-003    2.67813171E-002    9.22125098E+001    9.09563308E-003    9.22216054E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  2.99970000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    2.99970000E+002    5.18145411E+000    4.07704550E+000    2.88329373E-002    1.81626098E-002    5.46257199E+002    1.45923041E-002    5.46271791E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00000000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00000000E+002    8.28202368E+000    4.88113581E+000    3.60157880E-002    2.52166493E-002    1.16135134E+003    2.42910003E-002    1.16137563E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00030000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00030000E+002    9.41801717E+000    2.33348850E+000    2.48393849E-002    2.41648948E-002    1.18305111E+003    1.50914217E-002    1.18306620E+003
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00060000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00060000E+002    7.05631973E+000   -9.70487366E-001    2.11878157E-002    8.66920302E-003    6.37535887E+002    6.58576611E-003    6.37542473E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00090000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00090000E+002    2.52401299E+000   -2.21241508E+000    3.24262551E-002   -1.96455191E-005    1.41565469E+002    1.32130663E-002    1.41578682E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00120000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00120000E+002   -1.57074650E+000   -1.02226094E+000    4.94934658E-002   -1.09051896E-002    4.41363857E+001    3.22770536E-002    4.41686628E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00150000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00150000E+002   -3.74947434E+000    8.22265792E-001    4.65968995E-002   -1.36965422E-002    1.85161436E+002    2.96423883E-002    1.85191078E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00180000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00180000E+002   -3.61007069E+000    1.25939603E+000    2.75314312E-002   -1.24278874E-002    1.83703861E+002    1.14659598E-002    1.83715327E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00210000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00210000E+002   -1.93709977E+000   -5.78584957E-001    7.06079624E-003   -1.87599829E-002    5.13602155E+001    5.04906471E-003    5.13652645E+001
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00240000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00240000E+002   -4.58840732E-001   -4.67786289E+000   -1.55681149E-002   -1.53915375E-002    2.77628022E+002    6.02262949E-003    2.77634045E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00270000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00270000E+002   -8.57176752E-001   -8.63745077E+000   -4.45562183E-002   -1.04828094E-002    9.46754230E+002    2.63283796E-002    9.46780558E+002
+
+#Configuration Name: StandardConfiguration1
+#Request Name: Monostatic
+#Frequency:   1.00000000E+010
+#Coordinate System: Spherical
+#No. of Theta Samples: 1
+#No. of Phi Samples: 1
+#Result Type: RCS
+#Incident Wave Direction: (  9.00000000E+001,  3.00300000E+002)
+#Polarisation Angle:   0.00000000E+000
+#No. of Header Lines: 1
+#       "Theta"             "Phi"           "Re(Etheta)"       "Im(Etheta)"        "Re(Ephi)"         "Im(Ephi)"        "RCS(Theta)"        "RCS(Phi)"        "RCS(Total)"  
+    9.00000000E+001    3.00300000E+002   -3.44382798E+000   -9.62408584E+000   -6.46245474E-002   -1.88953518E-002    1.31297184E+003    5.69679629E-002    1.31302881E+003
