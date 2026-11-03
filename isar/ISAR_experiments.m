@@ -4,8 +4,12 @@
 %            A （ε=30°，0.3 m子孔径，方位扫描60°）
 %            B （ε=30°，0.15 m，单孔径12.5°）
 %      成像：统一用后向投影（bp_image.m）在目标坐标系的水平面上成像，避免算法差异混入对比；
-%            融合：60°数据按子孔径（6.3°，50%重叠）分别成像，各自按最大值归一化后功率相加。
-%      指标：散射中心个数（间距小于该图分辨率的峰合并）、轮廓覆盖率（isar_metrics.m）、-3 dB点宽度。
+%            融合：60°数据按子孔径（6.3°，50%重叠）分别成像，各自按最大值归一化后逐像素平均：
+%            算术平均——任一角度出现过的散射都会保留，但个别角度的强镜面闪光会留下拖影；
+%            几何平均（对数域平均）——保留在多数角度都持续存在的散射中心，抑制只在个别角度出现的闪光。
+%      指标：散射中心个数（间距小于该图分辨率的峰合并）、轮廓覆盖率（isar_metrics.m）、
+%            平均光斑面积（spot_area.m，最强20个点的-3 dB面积平均，统一在0.05 m网格上计算，越小越清晰）、-3 dB点宽度；
+%            图像熵只记录在表中：散射中心越多熵越大，不适合衡量“能否看出形状”。
 %      输出：figures/fig_p07_elevation.png、fig_p08_fusion.png、fig_p09_resolution.png、
 %            fig_p10_scattering.png，以及results_metrics.md。
 %      坐标约定与ISAR_RD.m、ISAR_FEKO.m一致（FEKO中phi=270°+转角，e^{jwt}约定，无需取共轭）。
@@ -77,12 +81,19 @@ Image_Acoh = to_dB(bp_image(S_A,f_A,phi_A,eps_A,1:numel(phi_A),x_coh,y_coh));
 M_Acoh = isar_metrics(Image_Acoh,x_coh,y_coh,outline_30,thr_dB,r_cover,0.3); % 距离分辨率0.3 m
 
 sub_start = 1:floor(n_sub/2):(numel(phi_A)-n_sub+1); % 50%重叠
-P_fused = zeros(numel(y_axis),numel(x_axis));
+P_mean = zeros(numel(y_axis),numel(x_axis)); % 算术平均
+logP_mean = zeros(numel(y_axis),numel(x_axis)); % 对数域平均（几何平均）
+P_floor = 10^(-40/10); % 对数前的下限，避免log(0)
 for k = 1:numel(sub_start)
     P_k = abs(bp_image(S_A,f_A,phi_A,eps_A,sub_start(k)+(0:n_sub-1),x_axis,y_axis)).^2;
-    P_fused = P_fused+P_k/max(P_k(:)); % 各子孔径先按自身最大值归一化，再功率相加
+    P_k = P_k/max(P_k(:)); % 各子孔径先按自身最大值归一化
+    P_mean = P_mean+P_k/numel(sub_start);
+    logP_mean = logP_mean+log(P_k+P_floor)/numel(sub_start);
 end
-Image_Afu = 10*log10(P_fused/max(P_fused(:))+eps);
+Image_Amean = 10*log10(P_mean/max(P_mean(:))+eps);
+P_geo = exp(logP_mean);
+Image_Afu = 10*log10(P_geo/max(P_geo(:))+eps); % 默认融合结果：几何平均
+M_Amean = isar_metrics(Image_Amean,x_axis,y_axis,outline_30,thr_dB,r_cover,0.3);
 M_Afu = isar_metrics(Image_Afu,x_axis,y_axis,outline_30,thr_dB,r_cover,0.3);
 
 %% 3) B：ε=30°，0.15 m单孔径
@@ -90,6 +101,25 @@ Image_B = to_dB(bp_image(S_B,f_B,phi_B,eps_B,1:numel(phi_B),x_fine,y_fine));
 M_B = isar_metrics(Image_B,x_fine,y_fine,outline_30,thr_dB,r_cover,0.15);
 rho_B = rho_of(f_B,phi_B,eps_B);
 fprintf('成像完成，用时%.1f s\n',toc);
+in_x = x_axis>=lims(1) & x_axis<=lims(2); in_y = y_axis>=lims(3) & y_axis<=lims(4);
+crop = @(I) I(in_y,in_x);
+M_E0.entropy = image_entropy(crop(Image_E0));
+M_Ac.entropy = image_entropy(crop(Image_Ac));
+M_Amean.entropy = image_entropy(crop(Image_Amean));
+M_Afu.entropy = image_entropy(crop(Image_Afu));
+M_Acoh.entropy = image_entropy(crop(bin_power(Image_Acoh,x_coh,y_coh,x_axis,y_axis)));
+M_B.entropy = image_entropy(crop(bin_power(Image_B,x_fine,y_fine,x_axis,y_axis)));
+% 平均光斑面积：最强20个散射中心的-3 dB面积平均（清晰度；拖影越多面积越大）
+n_top = 20;
+M_E0.spot = spot_area(Image_E0,x_axis,y_axis,M_E0.peaks,n_top);
+M_Ac.spot = spot_area(Image_Ac,x_axis,y_axis,M_Ac.peaks,n_top);
+M_Amean.spot = spot_area(Image_Amean,x_axis,y_axis,M_Amean.peaks,n_top);
+M_Afu.spot = spot_area(Image_Afu,x_axis,y_axis,M_Afu.peaks,n_top);
+% 细网格图像先按功率平均到同一0.05 m网格，避免整段相干图像的细密条纹把拖影“切碎”
+Image_Acoh_q = bin_power(Image_Acoh,x_coh,y_coh,x_axis,y_axis);
+Image_B_q = bin_power(Image_B,x_fine,y_fine,x_axis,y_axis);
+M_Acoh.spot = spot_area(Image_Acoh_q,x_axis,y_axis,isar_metrics(Image_Acoh_q,x_axis,y_axis,outline_30,thr_dB,r_cover,0.3).peaks,n_top);
+M_B.spot = spot_area(Image_B_q,x_axis,y_axis,isar_metrics(Image_B_q,x_axis,y_axis,outline_30,thr_dB,r_cover,0.15).peaks,n_top);
 
 %% -3 dB点宽度：取A中间子孔径的最强点，在B中找0.5 m以内的对应峰值
 pk_A = M_Ac.peaks(1,1:2);
@@ -108,14 +138,13 @@ show_img(1,2,1,Image_E0,x_axis,y_axis,outline_0,fig_titles{1},dynamic_range_dB,c
 show_img(1,2,2,Image_Ac,x_axis,y_axis,outline_30,fig_titles{2},dynamic_range_dB,cmap,outline_color,lims);
 print(gcf,'-dpng','-r300',['figures/fig_p07_elevation',fig_tag,'.png']);
 
-%% 图p08：融合对比
-figure('Name','子孔径融合','Color','w','Position',[50,50,1500,400]);
-show_img(1,3,1,Image_Ac,x_axis,y_axis,outline_30,...
-    sprintf('单个子孔径（%.1f°）：%d个，%.0f%%',theta_sub_deg,M_Ac.n_sc,100*M_Ac.coverage),dynamic_range_dB,cmap,outline_color,lims);
-show_img(1,3,2,Image_Acoh,x_coh,y_coh,outline_30,...
-    sprintf('60°整段相干：%d个，%.0f%%',M_Acoh.n_sc,100*M_Acoh.coverage),dynamic_range_dB,cmap,outline_color,lims);
-show_img(1,3,3,Image_Afu,x_axis,y_axis,outline_30,...
-    sprintf('%d个子孔径融合：%d个，%.0f%%',numel(sub_start),M_Afu.n_sc,100*M_Afu.coverage),dynamic_range_dB,cmap,outline_color,lims);
+%% 图p08：融合对比（单孔径 / 整段相干 / 算术平均融合 / 几何平均融合）
+mtxt = @(M) sprintf('%d个，覆盖%.0f%%，光斑%.2f m^2',M.n_sc,100*M.coverage,M.spot);
+figure('Name','子孔径融合','Color','w','Position',[50,50,1250,700]);
+show_img(2,2,1,Image_Ac,x_axis,y_axis,outline_30,['单个子孔径：',mtxt(M_Ac)],dynamic_range_dB,cmap,outline_color,lims);
+show_img(2,2,2,Image_Acoh,x_coh,y_coh,outline_30,['60°整段相干：',mtxt(M_Acoh)],dynamic_range_dB,cmap,outline_color,lims);
+show_img(2,2,3,Image_Amean,x_axis,y_axis,outline_30,['算术平均融合：',mtxt(M_Amean)],dynamic_range_dB,cmap,outline_color,lims);
+show_img(2,2,4,Image_Afu,x_axis,y_axis,outline_30,['几何平均融合：',mtxt(M_Afu)],dynamic_range_dB,cmap,outline_color,lims);
 print(gcf,'-dpng','-r300',['figures/fig_p08_fusion',fig_tag,'.png']);
 
 %% 图p09：分辨率对比（上：全图；下：最强点局部放大）
@@ -154,7 +183,7 @@ for k = 1:n_label
     end
 end
 figure('Name','散射机理','Color','w','Position',[50,50,900,520]);
-show_img(1,1,1,Image_Afu,x_axis,y_axis,outline_30,'子孔径融合图像中的主要散射中心',dynamic_range_dB,cmap,outline_color,lims);
+show_img(1,1,1,Image_Afu,x_axis,y_axis,outline_30,'几何平均融合图像中的主要散射中心',dynamic_range_dB,cmap,outline_color,lims);
 hold on;
 for k = 1:n_label
     plot(pk(k,1),pk(k,2),'o','Color',[0.2,1,0.4],'MarkerSize',9,'LineWidth',1.2);
@@ -164,14 +193,15 @@ hold off;
 print(gcf,'-dpng','-r300',['figures/fig_p10_scattering',fig_tag,'.png']);
 
 %% 指标表
-row = @(name,rho,M,w,t) sprintf('| %s | %.2f m | %d | %.0f%% | %s | %s |\n',name,rho,M.n_sc,100*M.coverage,w,t);
+row = @(name,rho,M,w,t) sprintf('| %s | %.2f m | %d | %.0f%% | %.2f m² | %.2f | %s | %s |\n',name,rho,M.n_sc,100*M.coverage,M.spot,M.entropy,w,t);
 fid = fopen(['results_metrics',fig_tag,'.md'],'w');
 fprintf(fid,'数据来源：%s；散射中心门限%d dB，覆盖半径%.1f m\n\n',data_source,thr_dB,r_cover);
-fprintf(fid,'| 图像 | 分辨率 | 散射中心个数 | 轮廓覆盖率 | -3 dB点宽度 | FEKO用时 |\n|---|---|---|---|---|---|\n');
+fprintf(fid,'| 图像 | 分辨率 | 散射中心个数 | 轮廓覆盖率 | 平均光斑面积 | 图像熵 | -3 dB点宽度 | FEKO用时 |\n|---|---|---|---|---|---|---|---|\n');
 fprintf(fid,'%s',row('E0：ε=0°，单孔径',mean(rho_E0),M_E0,'—',sprintf('%d min',t_E0_min)));
 fprintf(fid,'%s',row('A：ε=30°，单个子孔径',mean(rho_Ac),M_Ac,sprintf('%.2f×%.2f m',width_A),sprintf('%.1f h（A整体）',t_A_h)));
 fprintf(fid,'%s',row('A：60°整段相干',NaN,M_Acoh,'—','同上'));
-fprintf(fid,'%s',row('A：子孔径融合',mean(rho_Ac),M_Afu,'—','同上'));
+fprintf(fid,'%s',row('A：算术平均融合',mean(rho_Ac),M_Amean,'—','同上'));
+fprintf(fid,'%s',row('A：几何平均融合',mean(rho_Ac),M_Afu,'—','同上'));
 fprintf(fid,'%s',row('B：ε=30°，单孔径',mean(rho_B),M_B,sprintf('%.2f×%.2f m',width_B),sprintf('%.1f h',t_B_h)));
 fprintf(fid,'\n散射中心（融合图，按强度排序）：\n\n| 编号 | x / m | y / m | 相对强度 / dB | 所属部件（按位置） |\n|---|---|---|---|---|\n');
 for k = 1:n_label
