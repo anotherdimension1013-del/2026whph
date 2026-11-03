@@ -175,3 +175,10 @@ h1 span { color: #62816a; }
   .brand > span:last-child { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .note-card { transition: none; } }
+
+/* ---------- 组件：插图 ---------- */
+.figure { margin: 22px 0 26px; padding: 18px 18px 12px; border: 1px solid var(--line); background: #fffdf8; }
+.figure-body svg { display: block; width: 100%; height: auto; max-width: 680px; margin: 0 auto; }
+.figure figcaption { margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.7; text-align: center; }
+.figure-no { margin-right: 8px; color: var(--orange); font-weight: 700; }
+@media (max-width: 760px) { .figure { padding: 12px 8px 10px; margin-inline: -4px; } }

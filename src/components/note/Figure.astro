@@ -1,0 +1,9 @@
+---
+/** 图 + 图注。slot 中放内联 SVG 组件（import Fig from '...svg'） */
+interface Props { n?: string; caption: string }
+const { n, caption } = Astro.props;
+---
+<figure class="figure">
+  <div class="figure-body"><slot /></div>
+  <figcaption>{n && <span class="figure-no">图 {n}</span>}{caption}</figcaption>
+</figure>
