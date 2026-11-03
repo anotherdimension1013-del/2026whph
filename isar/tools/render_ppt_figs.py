@@ -102,3 +102,13 @@ cb.set_label("dB", color=FG, fontsize=12)
 fig.savefig(OUT / "colorbar.png", dpi=250, facecolor=BG)
 plt.close(fig)
 print("已输出到", OUT)
+
+# 第6页：同一份B数据上RD、PFA、BP三种算法的局部放大（ISAR_FEKO.m 保存 results_algo<tag>_B.mat）
+algo_file = ROOT / f"results_algo{TAG}_B.mat"
+if algo_file.exists():
+    G = loadmat(algo_file, squeeze_me=True, struct_as_record=False)
+    zc, zw = np.atleast_1d(G["zoom_c"]), float(G["zoom_w"])
+    zl = [zc[0] - zw, zc[0] + zw, zc[1] - zw, zc[1] + zw]
+    for img, name in zip(G["img_list"], ["alg_rd.png", "alg_pfa.png", "alg_bp.png"]):
+        show(img, G["x_image"], G["y_image"], G["outline_rot"], name, lim=zl, size=(3.4, 3.4))
+    print("算法对比：光斑面积", G["spot_alg"], "用时", G["t_alg"])

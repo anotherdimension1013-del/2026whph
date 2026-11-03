@@ -3,3 +3,4 @@
 figures/*_po*.png
 results_metrics_po.md
 results_images*.mat
+results_algo*.mat

@@ -199,7 +199,7 @@ s.addText([
 const branches = [
   { t: "RD", d: "扇形近似成矩形，直接二维 FFT", cond: "适用：小转角、窄带宽", use: "本文：B 数据，作对照（结果①）", c: HEX.accent1 },
   { t: "PFA", d: "先插值到矩形网格，再二维 FFT", cond: "解决：大转角/宽带宽下的散焦", use: "本文：B 数据（结果①）", c: HEX.accent1 },
-  { t: "BP + 子孔径融合", d: "逐像素投影，分段成像后几何平均", cond: "解决：宽角观测与散射方向性", use: "本文：A 的 60° 数据（结果②③④）", c: HEX.accent2 },
+  { t: "BP + 子孔径融合", d: "逐像素投影，分段成像后几何平均", cond: "解决：宽角观测与散射方向性", use: "本文：B（结果①）、A 的 60° 数据（②③④）", c: HEX.accent2 },
 ];
 const bx = 3.8, bw = 4.3;
 branches.forEach((b, i) => {
@@ -259,27 +259,34 @@ body(s, [
 ], 5.6, 4.6, 7.1, 2.1, 16);
 note(s, "目标是 RADARSAT-1，用 NASA 公开的三维模型。E0 是雷达与卫星同高；A 把雷达抬高 30 度并扫 60 度；B 把分辨率提高到 0.15 米。");
 
-// ============ 6 结果①：RD vs PFA ============
+// ============ 6 结果①：RD / PFA / BP ============
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "实验" });
-s.addText("结果①：PFA 校正边缘散焦", { placeholder: "title" });
+s.addText("结果①：三种算法对比，RD 在边缘散焦", { placeholder: "title" });
 tag(s, PO_TAG, 10.6, 2.1, true);
-[["rd_zoom.png", "RD（小转角近似）", RED], ["pfa_zoom.png", "PFA（极坐标插值）", GREEN]].forEach((d, i) => {
-  const x = 0.6 + i * 3.95;
-  framedImage(s, d[0], x, 1.45, 3.75, 3.75, d[1]);
-  s.addText(d[1], { x, y: 5.3, w: 3.75, h: 0.4, fontSize: 16, bold: true, color: d[2], align: "center",
+// 数值来自 ISAR_FEKO.m（data_mode='po_B'）输出的“算法对比”
+const ALG = [
+  { f: "alg_rd.png", t: "RD（小转角近似）", spot: 0.44, cost: "直接二维 FFT", c: RED },
+  { f: "alg_pfa.png", t: "PFA（极坐标插值）", spot: 0.042, cost: "插值 + FFT · 0.06 s", c: GREEN },
+  { f: "alg_bp.png", t: "BP（后向投影）", spot: 0.038, cost: "逐像素累加 · 10 s", c: GREEN },
+];
+const aw = 3.85, ag = 0.28, ah = 3.05;
+ALG.forEach((d, i) => {
+  const x = 0.6 + i * (aw + ag);
+  framedImage(s, d.f, x, 1.4, aw, ah, d.t);
+  s.addText(d.t, { x, y: 4.55, w: aw, h: 0.38, fontSize: 16, bold: true, color: d.c, align: "center",
     margin: 0, isTextBox: true });
+  s.addText([
+    { text: "−3 dB 光斑 ", options: { color: MUTED, fontSize: 13 } },
+    { text: (d.spot >= 0.1 ? d.spot.toFixed(2) : d.spot.toFixed(3)) + " m²", options: { color: i ? TXT : AMBER, fontSize: 20, bold: true } },
+  ], { x, y: 4.92, w: aw, h: 0.4, align: "center", valign: "middle", margin: 0, isTextBox: true });
+  s.addText(d.cost, { x, y: 5.3, w: aw, h: 0.28, fontSize: 12, color: MUTED, align: "center", margin: 0, isTextBox: true });
 });
-caption(s, "B 数据（0.15 m）中离中心最远的散射点，窗口 2 m × 2 m", 0.6, 5.8, 7.7);
-s.addText([
-  { text: "1.65 m", options: { fontSize: 48, bold: true, color: AMBER, breakLine: true } },
-  { text: "边缘点的距离徙动 ≈ 11 个分辨单元", options: { fontSize: 13, color: MUTED } },
-], { x: 8.9, y: 1.5, w: 3.8, h: 1.4, margin: 0, isTextBox: true, objectName: "距离徙动" });
 body(s, [
-  "B 的转角和带宽较大，RD 把边缘的点拉成一条 L 形的拖尾。",
-  "PFA 先校正扇形数据，把它恢复成一个点。",
-  "点聚焦好了，但能不能看出卫星的形状？",
-], 8.9, 3.3, 3.8, 3.0, 17);
-note(s, "B 数据转角 12.5 度、带宽 1.15 GHz，边缘点的距离徙动约 1.65 米。RD 中这个点被拉成 L 形，PFA 恢复为一个点。算法问题解决了，下面看形状。");
+  "同一份 B 数据、同一网格上，RD 把离中心最远的点拉成 L 形拖尾，光斑是另外两种的 10 倍以上。",
+  "PFA 和 BP 都把它聚焦成一个点，位置一致，互相印证。",
+  "PFA 快，BP 慢约两个数量级但不受转角限制，所以 60° 宽角数据改用 BP。",
+], 0.6, 5.75, 12.1, 1.2, 15);
+note(s, "三种算法处理同一份 B 数据，放大的是离旋转中心最远的散射点，窗口约 2 米见方。边缘点的距离徙动约 1.65 米，RD 的小转角近似不再成立，这个点被拉成 L 形，-3 dB 光斑 0.44 平方米。PFA 和 BP 都恢复成一个点，约 0.04 平方米，而且位置相同。PFA 只要 0.06 秒，BP 要 10 秒，但 BP 没有转角限制，所以后面 60 度的宽角数据都用 BP。");
 
 // ============ 7 结果②：俯仰角 ============
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "实验" });

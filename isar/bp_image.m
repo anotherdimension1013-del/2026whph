@@ -6,7 +6,7 @@ function Image_BP = bp_image(S_f_phi,f_axis,phi_axis_deg,epsilon_deg,idx_az,x_ax
 %   phi_axis_deg : 1×Naz 方位角，deg
 %   epsilon_deg  : 雷达俯仰角ε，deg（FEKO中θ=90°-ε）
 %   idx_az       : 参与成像的方位角序号（一个子孔径或整段宽角）
-%   x_axis,y_axis: 目标坐标系（FEKO全局坐标）的成像网格，m
+%   x_axis,y_axis: 目标坐标系（FEKO全局坐标）的成像网格，m；也可直接给同尺寸的二维网格矩阵X、Y
 %   Image_BP     : numel(y_axis)×numel(x_axis) 复图像
 %
 %   原理：雷达方向u=(cosε·cosφ, cosε·sinφ, sinε)，散射点r的回波 E=A·exp(-j4πf·ΔR/c)，ΔR=-u·r。
@@ -32,7 +32,11 @@ else
     Wa = 1;
 end
 
-[X,Y] = meshgrid(x_axis,y_axis);
+if isequal(size(x_axis),size(y_axis)) && min(size(x_axis))>1
+    X = x_axis; Y = y_axis; % 直接给出任意网格（例如旋转后的网格）
+else
+    [X,Y] = meshgrid(x_axis,y_axis);
+end
 Image_BP = complex(zeros(size(X)));
 for k = 1:Naz_use
     phi = phi_axis_deg(idx_az(k))*pi/180;

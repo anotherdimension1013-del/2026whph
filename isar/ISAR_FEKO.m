@@ -42,6 +42,7 @@ dynamic_range_dB = 25; % 图像显示动态范围，不改变成像结果；25 d
 cmap = hot(256); % 图像色图：hot（黑底，接近雷达图像的常用显示）；也可改为jet(256)
 outline_color = [0.3,0.85,1]; % 模型轮廓线颜色（青色）
 enable_pfa = true; % 是否做PFA并与RD对比
+enable_bp = true; % 是否在同一网格上做BP，与RD、PFA三者对比（需enable_pfa）
 if ~exist('figures','dir'); mkdir('figures'); end
 
 %% 读取数据与基本参数
@@ -115,6 +116,7 @@ colormap(jet(256));
 print(gcf,'-dpng','-r300',['figures/fig02_raw_data_rcs',fig_tag,'.png']);
 
 %% 距离压缩：频率维加窗 + IFFT（补零只加密网格）
+t_rd = tic; % RD用时 = 距离压缩 + 方位FFT
 % E(f)~exp(-j*4*pi*f*dR/c)，IFFT后峰值在dR处：远离雷达为正，与ISAR_RD.m一致。
 Nfft_r = 2^nextpow2(pad_factor*Nf);
 S1_r_theta = fftshift(ifft(bsxfun(@times,S_f_phi,Wr),Nfft_r,1),1);
@@ -152,12 +154,14 @@ clear S_pad S_window;
 f_theta = (-Nfft_a/2:Nfft_a/2-1)/(Nfft_a*delta_phi); % 角频率，周/rad
 cross_range_axis = lambda*f_theta/2/s_el; % 横向轴（水平面投影），m
 dx_image = lambda/(2*Nfft_a*delta_phi)/s_el; % 补零后横向显示网格，m；不是分辨率
+t_rd = toc(t_rd);
 
 %% PFA：极坐标 (K,theta) -> 直角坐标 (Kx,Ky)
 % 空间频率 K=4*pi*f/c。相位 -K*(R-R0) = K*sin(theta)*x - K*cos(theta)*y，
 % 令 Kx=K*sin(theta)，Ky=K*cos(theta)，则 E=sum A*exp(j*(Kx*x-Ky*y))：
 % 对Kx做FFT得x，对Ky做IFFT得y，正负号与RD完全一致。
 if enable_pfa
+    t_pfa = tic;
     K_axis = 4*pi*f_axis(:)/c*s_el; % 列向量：空间频率在xy平面内的分量
     % 取极坐标扇环内接的矩形：Kx范围由最小K的两端转角决定，Ky上限由最大K决定
     Kx_lo = K_axis(1)*tan(theta_axis(1));
@@ -176,6 +180,7 @@ if enable_pfa
     y_pfa = (-Nfft_r/2:Nfft_r/2-1).'*2*pi/(Nfft_r*dKy); % m
     x_pfa = (-Nfft_a/2:Nfft_a/2-1)*2*pi/(Nfft_a*dKx); % m
     % 插值到与RD相同的网格，便于并排比较
+    t_pfa = toc(t_pfa);
     S_PFA = interp2(x_pfa,y_pfa,abs(S_PFA),cross_range_axis,range_axis,'linear',0);
 end
 
@@ -190,6 +195,17 @@ Image_dB = 20*log10(Image_abs/(max(Image_abs(:))+eps)+eps);
 if enable_pfa
     Image_pfa_abs = S_PFA(idx_y,idx_x);
     Image_pfa_dB = 20*log10(Image_pfa_abs/(max(Image_pfa_abs(:))+eps)+eps);
+end
+% BP：在同一显示网格上直接成像。网格是中心视角下的ISAR坐标(x',y')，
+% 逆转回目标坐标(x,y)后交给bp_image（x=x'cos-y'sin，y=x'sin+y'cos）。
+enable_bp = enable_bp && enable_pfa;
+if enable_bp
+    [XP,YP] = meshgrid(x_image,y_image);
+    t_bp = tic;
+    Image_bp_abs = abs(bp_image(S_f_phi,f_axis,phi_axis_deg,epsilon_deg,1:Naz,...
+        XP*cos(theta_c)-YP*sin(theta_c),XP*sin(theta_c)+YP*cos(theta_c)));
+    t_bp = toc(t_bp);
+    Image_bp_dB = 20*log10(Image_bp_abs/(max(Image_bp_abs(:))+eps)+eps);
 end
 
 % 真实散射点（仅假数据）转到中心视角下的ISAR坐标
@@ -235,23 +251,27 @@ if enable_pfa
     x_pk = XI(is_peak); y_pk = YI(is_peak);
     zoom_c = [x_pk(i_far),y_pk(i_far)];
     zoom_w = 0.06*L; % 放大窗口半宽，m
-    figure('Name','RD与PFA对比','Color','w','Position',[100,100,900,800]);
     img_list = {Image_dB,Image_pfa_dB};
     name_list = {'RD（小转角近似）','PFA（极坐标插值）'};
-    for k = 1:4
-        subplot(2,2,k);
-        imagesc(x_image,y_image,img_list{mod(k-1,2)+1}); axis xy; axis equal; axis tight;
+    if enable_bp
+        img_list{3} = Image_bp_dB; name_list{3} = 'BP（后向投影）';
+    end
+    n_alg = numel(img_list);
+    figure('Name','RD、PFA、BP对比','Color','w','Position',[100,100,450*n_alg,800]);
+    for k = 1:2*n_alg
+        subplot(2,n_alg,k);
+        imagesc(x_image,y_image,img_list{mod(k-1,n_alg)+1}); axis xy; axis equal; axis tight;
         hold on;
         if has_model
             plot(rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c),'-','Color',outline_color,'LineWidth',0.6);
         end
         if has_truth; plot(x_true,y_true,'wo','MarkerSize',8); end
-        if k<=2
+        if k<=n_alg
             rectangle('Position',[zoom_c-zoom_w,2*zoom_w,2*zoom_w],'EdgeColor','w','LineStyle','--');
             title(name_list{k});
         else
             xlim(zoom_c(1)+zoom_w*[-1,1]); ylim(zoom_c(2)+zoom_w*[-1,1]);
-            title([name_list{k-2},'：局部放大']);
+            title([name_list{k-n_alg},'：局部放大']);
         end
         hold off;
         xlabel('横向x / m'); ylabel('距离向y / m');
@@ -259,6 +279,27 @@ if enable_pfa
     end
     colormap(cmap);
     print(gcf,'-dpng','-r300',['figures/fig05_RD_vs_PFA',fig_tag,'.png']);
+    % 定量：放大窗口内最强点的-3 dB光斑面积，以及各算法用时
+    in_zoom = abs(XI-zoom_c(1))<=zoom_w & abs(YI-zoom_c(2))<=zoom_w;
+    spot_alg = zeros(1,n_alg);
+    for k = 1:n_alg
+        Ik = img_list{k};
+        [~,id] = max(Ik(:).*in_zoom(:)-1e3*(~in_zoom(:)));
+        spot_alg(k) = spot_area(Ik,x_image,y_image,[XI(id),YI(id)],1);
+    end
+    t_alg = [t_rd,t_pfa];
+    if enable_bp; t_alg(3) = t_bp; end
+    fprintf('\n------- 算法对比（放大窗口内最强点） -------\n');
+    for k = 1:n_alg
+        fprintf('%s：-3 dB光斑面积 %.3f m^2，用时 %.2f s\n',name_list{k},spot_alg(k),t_alg(k));
+    end
+    % 保存图像矩阵（供汇报PPT重新绘制）
+    outline_rot = [];
+    if has_model
+        outline_rot = [rot_x(Model.outline_xy,theta_c),rot_y(Model.outline_xy,theta_c)];
+    end
+    save(['results_algo',fig_tag,'.mat'],'img_list','name_list','x_image','y_image','zoom_c','zoom_w',...
+        'spot_alg','t_alg','outline_rot','-v7');
 end
 
 %% 图5：正负号检查——正确约定 / 误取共轭 / 方位角顺序取反
