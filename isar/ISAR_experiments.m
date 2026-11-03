@@ -209,3 +209,8 @@ for k = 1:n_label
 end
 fclose(fid);
 type(['results_metrics',fig_tag,'.md']);
+
+%% 保存图像矩阵（供汇报PPT重新绘制大字号、统一配色的图）
+save(['results_images',fig_tag,'.mat'],'Image_E0','Image_Ac','Image_Acoh','Image_Amean','Image_Afu','Image_B', ...
+    'x_axis','y_axis','x_coh','y_coh','x_fine','y_fine','outline_0','outline_30','pk','part', ...
+    'M_E0','M_Ac','M_Acoh','M_Amean','M_Afu','M_B','width_A','width_B','pk_A','pk_B','lims','-v7');
