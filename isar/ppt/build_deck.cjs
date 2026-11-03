@@ -248,6 +248,43 @@ body(s, [
 ], 6.6, 4.98, 6.15, 2.0, 15);
 note(s, "三种算法不是先后步骤，而是并列的，都直接处理同一份 FEKO 数据。RD 最简单，但假设转角和带宽很小；PFA 先把扇形数据插值到矩形网格，能处理更大的转角和带宽；60 度宽角时 PFA 也不够用，我们改用后向投影，每 6.3 度做一张子图，再把 18 张子图做几何平均。");
 
+// ============ 4b 三种算法：做法与解决的问题 ============
+s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "方法" });
+section(s, "METHOD");
+s.addText("RD、PFA、BP：做法与解决的问题", { placeholder: "title" });
+const ALGS = [
+  { t: "RD  距离-多普勒", f: "sch_rd.png", c: RED,
+    rows: [["做法", "频率维 IFFT 得距离像，角度维 FFT 得横向像"],
+           ["前提", "小转角、窄带宽：把扇形近似为矩形"],
+           ["局限", "边缘点越分辨单元徙动（MTRC），散焦"]] },
+  { t: "PFA  极坐标格式", f: "sch_pfa.png", c: NAVY,
+    rows: [["做法", "按 Kx = K sinθ、Ky = K cosθ 插值到矩形网格，再二维 FFT"],
+           ["解决", "RD 的 MTRC 散焦"],
+           ["局限", "远场近似、插值误差；宽角时数据利用率低"]] },
+  { t: "BP  后向投影", f: "sch_bp.png", c: TEAL,
+    rows: [["做法", "逐像素算出各角度下的距离，取距离像的值、补相位后累加"],
+           ["解决", "任意转角与俯仰；各子孔径图落在同一网格，便于融合"],
+           ["代价", "计算量 ∝ 像素数 × 角度数，本文约为 PFA 的 170 倍"]] },
+];
+const cw = 3.85, cg = 0.3;
+ALGS.forEach((a, i) => {
+  const x = 0.6 + i * (cw + cg);
+  sub(s, a.t, x, 1.45, cw, 19, a.c);
+  img(s, a.f, x, 1.95, cw, 2.05, a.t + " 示意");
+  a.rows.forEach((r, j) => {
+    const y = 4.2 + j * 0.62;
+    s.addText(r[0], { x, y, w: 0.6, h: 0.55, fontSize: 14, bold: true, color: a.c, margin: 0,
+      valign: "top", isTextBox: true });
+    s.addText(r[1], { x: x + 0.62, y, w: cw - 0.62, h: 0.55, fontSize: 13, color: GREY, margin: 0,
+      valign: "top", isTextBox: true });
+  });
+});
+s.addShape(pres.shapes.LINE, { x: 0.6, y: 6.2, w: 12.15, h: 0, line: { color: RULE, width: 1 }, objectName: "分隔线" });
+s.addText("三者处理同一份扇形频谱数据：RD 把扇形近似为矩形，PFA 先插值成矩形，BP 直接逐像素匹配，精度依次提高、速度依次降低。",
+  { x: 0.6, y: 6.3, w: 12.15, h: 0.65, fontSize: 15, bold: true, color: NAVY, margin: 0, valign: "middle",
+    isTextBox: true, objectName: "总结" });
+note(s, "三种算法的输入相同，都是频率乘角度的扇形数据。RD 最快，直接两次 FFT，但它把扇形当成矩形，离中心远的点会跨越多个分辨单元而散焦。PFA 按真实坐标把扇形插值到矩形网格，消除了这个误差，代价是插值。BP 不做几何近似，对每个像素直接计算距离并累加，任意转角都适用，但计算量最大。");
+
 // ============ 5 实验设计 ============
 pres.addSection({ title: "实验" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "实验" });
