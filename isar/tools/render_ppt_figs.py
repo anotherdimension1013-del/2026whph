@@ -1,5 +1,5 @@
 """汇报PPT用图：读取 ISAR_experiments.m 保存的 results_images<tag>.mat，
-按深色背景、大字号、无标题（标题写在PPT里）重新绘制各张ISAR图像。
+按白色背景、大字号、无标题（标题写在PPT里）重新绘制各张ISAR图像。
 
 用法：python tools/render_ppt_figs.py [tag]   tag 缺省为 _po（简化PO预览数据）；FEKO数据用空字符串 ""
 输出：ppt/fig/*.png
@@ -26,8 +26,8 @@ for name in ["Microsoft YaHei", "WenQuanYi Zen Hei"]:
         break
 plt.rcParams["axes.unicode_minus"] = False
 
-BG = "#0B1220"      # 与PPT背景一致
-FG = "#C9D3E0"      # 坐标轴文字
+BG = "#FFFFFF"      # 与PPT背景一致（白底模板）
+FG = "#404850"      # 坐标轴文字
 CYAN = "#4DD9FF"    # 模型轮廓
 GREEN = "#7CFF9B"   # 散射中心标注
 DR = 25             # 显示动态范围，dB
@@ -40,7 +40,7 @@ def axes_style(ax, show_y=True):
     ax.set_facecolor("black")
     ax.tick_params(colors=FG, labelsize=13, length=3)
     for s in ax.spines.values():
-        s.set_color("#3A4A60")
+        s.set_color("#8A949E")
     ax.set_xlabel("x / m", color=FG, fontsize=13)
     if show_y:
         ax.set_ylabel("y / m", color=FG, fontsize=13)
@@ -62,7 +62,7 @@ def show(img, x, y, outline, fname, lim=lims, size=(7.0, 3.3), marks=None, cbar=
         cb = fig.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
         cb.ax.tick_params(colors=FG, labelsize=12)
         cb.set_label("dB", color=FG, fontsize=12)
-        cb.outline.set_edgecolor("#3A4A60")
+        cb.outline.set_edgecolor("#8A949E")
     fig.savefig(OUT / fname, dpi=250, facecolor=BG, bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
 
@@ -97,7 +97,7 @@ show(D["Image_Afu"], xa, ya, o30, "scatter.png", size=(8.2, 3.8), marks=pks[:, :
 fig = plt.figure(figsize=(0.9, 3.0), facecolor=BG)
 cax = fig.add_axes([0.15, 0.05, 0.25, 0.9])
 cb = matplotlib.colorbar.ColorbarBase(cax, cmap="hot", norm=matplotlib.colors.Normalize(-DR, 0))
-cb.ax.tick_params(colors=FG, labelsize=12); cb.outline.set_edgecolor("#3A4A60")
+cb.ax.tick_params(colors=FG, labelsize=12); cb.outline.set_edgecolor("#8A949E")
 cb.set_label("dB", color=FG, fontsize=12)
 fig.savefig(OUT / "colorbar.png", dpi=250, facecolor=BG)
 plt.close(fig)
