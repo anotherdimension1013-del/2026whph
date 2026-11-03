@@ -39,10 +39,11 @@ if ~exist('figures','dir'); mkdir('figures'); end
 %% 读取数据与基本参数
 c = 3e8; % 光速，m/s
 [S_f_phi,f_axis,phi_axis_deg,ffe_info] = read_ffe(ffe_file,E_comp);
-% 雷达俯仰：theta=90°时雷达在xy平面内；theta<90°时斜视成像，
-% 空间频率在xy平面内的分量为K*sin(theta)，坐标除以sin(theta)即投影回水平面（地面投影）。
+% 俯仰角ε = 90°-θ（θ为FEKO平面波的天顶角）：ε=0时雷达在xy平面内；ε>0时雷达位于斜上方，
+% 空间频率在xy平面内的分量为K*cos(ε)，坐标除以cos(ε)即投影回水平面。
 theta_inc_deg = ffe_info.theta_deg;
-s_el = sin(theta_inc_deg*pi/180);
+epsilon_deg = 90-theta_inc_deg; % 俯仰角，deg
+s_el = cos(epsilon_deg*pi/180); % 俯仰修正系数cos(ε)
 [Nf,Naz] = size(S_f_phi);
 delta_f = mean(diff(f_axis)); % 频率步进，Hz
 f0 = (f_axis(1)+f_axis(end))/2; % 中心频率，Hz
@@ -201,8 +202,8 @@ end
 if has_truth; plot(x_true,y_true,'o','Color',outline_color,'MarkerSize',8,'LineWidth',1); end
 hold off;
 xlabel('横向x / m'); ylabel('距离向y / m（远离雷达为正）');
-title(sprintf('%s图像（f_0=%.1f GHz，\\theta=%.0f°，\\phi_c=%.1f°，\\theta_m=%.1f°）',...
-    name_main,f0/1e9,theta_inc_deg,phi_c_deg,theta_m*180/pi));
+title(sprintf('%s图像（f_0=%.1f GHz，\\epsilon=%.0f°，\\phi_c=%.1f°，\\theta_m=%.1f°）',...
+    name_main,f0/1e9,epsilon_deg,phi_c_deg,theta_m*180/pi));
 colormap(cmap); caxis([-dynamic_range_dB,0]); colorbar;
 print(gcf,'-dpng','-r300',['figures/fig04_ISAR_image',fig_tag,'.png']);
 
@@ -272,7 +273,7 @@ print(gcf,'-dpng','-r300',['figures/fig06_sign_check',fig_tag,'.png']);
 fprintf('\n======= ISAR转台成像参数 =======\n');
 fprintf('数据矩阵：Nf=%d个频点 × Naz=%d个方位角\n',Nf,Naz);
 fprintf('f0=%.3f GHz，Br=%.1f MHz，delta_f=%.2f MHz\n',f0/1e9,Br/1e6,delta_f/1e6);
-fprintf('方位：%.3f~%.3f deg，中心%.3f deg，theta_m=%.2f deg\n',...
+fprintf('俯仰角epsilon=%.0f deg；方位：%.3f~%.3f deg，中心%.3f deg，theta_m=%.2f deg\n',epsilon_deg,...
     phi_axis_deg(1),phi_axis_deg(end),phi_c_deg,theta_m*180/pi);
 fprintf('距离分辨率rho_r=%.3f m；补零后距离网格=%.3f m\n',rho_r,dr_image);
 fprintf('横向分辨率rho_a=%.3f m；补零后横向网格=%.3f m\n',rho_a,dx_image);

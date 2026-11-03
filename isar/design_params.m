@@ -19,7 +19,10 @@ model_mode = 'radarsat1'; % 'radarsat1'：NASA RADARSAT-1模型（STL）；'sate
 rho_design = 0.3; % 设计分辨率（距离、横向相同），m；决定带宽与总转角
 os_ua = 1.5; % 不模糊窗口相对目标尺寸的余量：c/(2*delta_f)>os_ua*L，lambda/(2*delta_phi)>os_ua*L
 phi_c_deg = 300; % 中心观测方位角（FEKO的phi），deg；270°为正对-y方向（平板镜面闪烁）
-theta_inc_deg = 90; % 雷达俯仰：FEKO的theta，90°表示雷达位于xy平面内（转台平面）
+epsilon_deg = 0; % 雷达俯仰角ε，deg：0°为雷达与目标同高（在xy平面内），30°为雷达位于斜上方30°
+theta_inc_deg = 90-epsilon_deg; % FEKO平面波入射方向的天顶角θ（从+z轴量起）= 90°-ε
+phi_span_deg = 0; % 宽角扫描的总方位范围，deg；0表示只扫一个子孔径（总转角theta_m）。子孔径融合时如设为60
+c_el = cos(epsilon_deg*pi/180); % 俯仰修正：空间频率在xy平面内的分量为K*cos(ε)，水平面上的分辨率与窗口均除以cos(ε)
 pol_mode = 'VV'; % 'VV'：eta=0°，接收Etheta；'HH'：eta=90°，接收Ephi
 t_per_point = 0.18; % 每个(频点,角度)单站解的耗时，s；5.3 GHz、RL-GO射线密度Low实测（Normal约2.9 s/点）
 
@@ -55,36 +58,43 @@ target_radius = L/2; % 最大转动半径，m
 c = 3e8; % 光速，m/s
 f0 = 5.3e9; % 中心频率，Hz（C波段，RADARSAT-1自身SAR的工作频率；试算表明比X波段射线数少、计算快得多）
 lambda = c/f0; % 中心波长，m
-Br = c/(2*rho_design); % 扫频带宽，Hz
-rho_r = c/(2*Br); % 距离向理论分辨率，m（矩形窗）
+Br = c/(2*rho_design*c_el); % 扫频带宽，Hz（水平面上距离分辨率为rho_design）
+rho_r = c/(2*Br)/c_el; % 距离向理论分辨率（水平面投影，矩形窗），m
 f_min = f0-Br/2; f_max = f0+Br/2; % 扫频起止，Hz
 lambda_min = c/f_max; % 最短波长，m，用于角度采样的保守设计
 
 % 频率步进：不模糊距离 R_ua=c/(2*delta_f) 必须大于 os_ua*L
-delta_f_max = c/(2*os_ua*L); % 允许的最大频率步进，Hz
-% 把上限向下取到{1,2,2.5,5}×10^n序列中的“整”数
-p10 = 10^floor(log10(delta_f_max)); m_nice = [1,2,2.5,5,10];
+delta_f_max = c/(2*os_ua*L*c_el); % 允许的最大频率步进，Hz
+% 把上限向下取到{1,1.25,2,2.5,4,5,6.25,8}×10^n序列中的“整”数
+p10 = 10^floor(log10(delta_f_max)); m_nice = [1,1.25,2,2.5,4,5,6.25,8,10];
 delta_f = p10*m_nice(find(m_nice*p10<=delta_f_max,1,'last'));
 Nf = round(Br/delta_f)+1; % 频点数（含两端点）
-R_ua = c/(2*delta_f); % 不模糊距离窗，m
+R_ua = c/(2*delta_f)/c_el; % 不模糊距离窗（水平面投影），m
 f_axis = f_min+(0:Nf-1)*delta_f; % 频率轴，Hz
 
 %% 方位向参数（转角）
 % 横向分辨率 rho_a = lambda/(2*theta_m)，令 rho_a ≈ rho_r
 res_a = rho_design; % 希望达到的横向分辨率，m
-theta_m = lambda/(2*res_a); % 所需总转角，rad
+theta_m = lambda/(2*res_a*c_el); % 所需总转角（单个子孔径），rad
 % 角度步进：横向不模糊窗 X_ua = lambda_min/(2*delta_phi) 必须大于 os_ua*L
-delta_phi_max = lambda_min/(2*os_ua*L); % rad
-delta_phi_deg = floor(delta_phi_max*180/pi*100)/100; % 向下取到0.01°，便于在FEKO中填写
+delta_phi_max = lambda_min/(2*os_ua*L*c_el); % rad
+delta_phi_deg = floor(delta_phi_max*180/pi*200)/200; % 向下取到0.005°，便于在FEKO中填写
 delta_phi = delta_phi_deg*pi/180;
 % 角度点数：使总转角不小于所需值；再由步进反推实际总转角（保证FEKO中的数都是整齐的）
-Naz = ceil(theta_m*180/pi/delta_phi_deg)+1; % 角度点数（含两端点）
-theta_m_deg = delta_phi_deg*(Naz-1);
+Naz_sub = ceil(theta_m*180/pi/delta_phi_deg)+1; % 单个子孔径的角度点数（含两端点）
+theta_m_deg = delta_phi_deg*(Naz_sub-1);
 theta_m = theta_m_deg*pi/180;
-rho_a = lambda/(2*theta_m); % 实际理论横向分辨率，m
-X_ua = lambda_min/(2*delta_phi); % 横向不模糊窗（最高频处，最保守），m
-phi_start_deg = phi_c_deg-theta_m_deg/2; % FEKO中phi扫描起点，deg
-phi_end_deg = phi_c_deg+theta_m_deg/2; % FEKO中phi扫描终点，deg
+rho_a = lambda/(2*theta_m)/c_el; % 实际理论横向分辨率（水平面投影），m
+X_ua = lambda_min/(2*delta_phi)/c_el; % 横向不模糊窗（最高频处，最保守），m
+% FEKO中的方位扫描：单孔径时就是theta_m；宽角时为phi_span_deg（取步进的整数倍）
+if phi_span_deg>theta_m_deg
+    Naz = ceil(phi_span_deg/delta_phi_deg)+1;
+else
+    Naz = Naz_sub;
+end
+phi_scan_deg = delta_phi_deg*(Naz-1); % 实际方位扫描范围，deg
+phi_start_deg = phi_c_deg-phi_scan_deg/2; % FEKO中phi扫描起点，deg
+phi_end_deg = phi_c_deg+phi_scan_deg/2; % FEKO中phi扫描终点，deg
 phi_axis_deg = phi_start_deg+(0:Naz-1)*delta_phi_deg; % 方位角轴，deg
 theta_axis = (phi_axis_deg-phi_c_deg)*pi/180; % 相对中心的转角（逆时针看雷达=目标顺时针），rad
 
@@ -108,7 +118,7 @@ x_max = max(abs(x_img)); y_max = max(abs(y_img));
 % 转动距离徙动：横向x处的点在theta_m内距离变化约x*theta_m
 range_migration = x_max*theta_m;
 % 二次相位误差：y*(1-cos(theta))≈y*theta^2/2，取边缘theta=theta_m/2
-phase_error_max = 4*pi/lambda*max(sqrt(x_img.^2+y_img.^2))*(theta_m/2)^2/2;
+phase_error_max = 4*pi/lambda*c_el*max(sqrt(x_img.^2+y_img.^2))*(theta_m/2)^2/2;
 % 带宽引起的横向尺度变化：x方向多普勒正比于f，频带边缘横向位置相差x*Br/f0
 cross_scale_blur = x_max*Br/f0;
 
@@ -131,12 +141,13 @@ fprintf('中心频率f0=%.2f GHz，lambda=%.2f cm\n',f0/1e9,lambda*100);
 fprintf('带宽Br=%.0f MHz，扫频%.3f~%.3f GHz\n',Br/1e6,f_min/1e9,f_max/1e9);
 fprintf('频率步进delta_f=%.2f MHz（上限%.2f MHz），频点数Nf=%d\n',delta_f/1e6,delta_f_max/1e6,Nf);
 fprintf('不模糊距离R_ua=%.2f m（要求>%.2f m）\n',R_ua,os_ua*L);
-fprintf('总转角theta_m=%.2f deg，phi扫描%.3f~%.3f deg\n',theta_m_deg,phi_start_deg,phi_end_deg);
+fprintf('俯仰角epsilon=%.0f deg（FEKO平面波theta=%.0f deg）\n',epsilon_deg,theta_inc_deg);
+fprintf('子孔径总转角theta_m=%.2f deg（%d个角度）；FEKO中phi扫描%.3f~%.3f deg，共%d个角度\n',theta_m_deg,Naz_sub,phi_start_deg,phi_end_deg,Naz);
 fprintf('角度步进delta_phi=%.4f deg（上限%.4f deg），角度点数Naz=%d\n',delta_phi_deg,delta_phi_max*180/pi,Naz);
 fprintf('横向不模糊窗X_ua=%.2f m（要求>%.2f m）\n',X_ua,os_ua*L);
 fprintf('距离分辨率rho_r=%.3f m；横向分辨率rho_a=%.3f m\n',rho_r,rho_a);
 fprintf('目标占据分辨单元：距离%.0f个×横向%.0f个\n',cells_r,cells_a);
-fprintf('极化：%s（FEKO平面波eta=%d°，接收%s），雷达俯仰theta=%d°\n',upper(pol_mode),eta_deg,E_comp,theta_inc_deg);
+fprintf('极化：%s（FEKO平面波eta=%d°，接收%s）\n',upper(pol_mode),eta_deg,E_comp);
 fprintf('----- RD适用性（中心视角phi=%.1f°） -----\n',phi_c_deg);
 fprintf('最大横向|x|=%.2f m，最大距离|y|=%.2f m\n',x_max,y_max);
 fprintf('转动距离徙动约=%.3f m（半个距离单元=%.3f m）\n',range_migration,rho_r/2);
@@ -164,20 +175,21 @@ fprintf(fid,'| 带宽 | Br | %.0f MHz | %.3f~%.3f GHz |\n',Br/1e6,f_min/1e9,f_ma
 fprintf(fid,'| 频率步进 | Δf | %.2f MHz | 上限 c/(2·%.1fL) = %.2f MHz |\n',delta_f/1e6,os_ua,delta_f_max/1e6);
 fprintf(fid,'| 频点数 | Nf | %d | |\n',Nf);
 fprintf(fid,'| 不模糊距离 | c/(2Δf) | %.2f m | > %.1fL = %.2f m |\n',R_ua,os_ua,os_ua*L);
-fprintf(fid,'| 总转角 | θm | %.2f° | φ: %.3f°~%.3f° |\n',theta_m_deg,phi_start_deg,phi_end_deg);
+fprintf(fid,'| 子孔径总转角 | θm | %.2f° | %d 个角度 |\n',theta_m_deg,Naz_sub);
+fprintf(fid,'| FEKO 方位扫描 | φ | %.3f°~%.3f° | %d 个角度 |\n',phi_start_deg,phi_end_deg,Naz);
 fprintf(fid,'| 角度步进 | Δφ | %.4f° | 上限 λmin/(2·%.1fL) = %.4f° |\n',delta_phi_deg,os_ua,delta_phi_max*180/pi);
 fprintf(fid,'| 角度点数 | Naz | %d | |\n',Naz);
 fprintf(fid,'| 横向不模糊窗 | λmin/(2Δφ) | %.2f m | > %.2f m |\n',X_ua,os_ua*L);
 fprintf(fid,'| 距离分辨率 | ρr = c/(2Br) | %.3f m | 矩形窗 |\n',rho_r);
 fprintf(fid,'| 横向分辨率 | ρa = λ0/(2θm) | %.3f m | 矩形窗 |\n',rho_a);
 fprintf(fid,'| 极化 | | %s | 平面波 η=%d°，接收 %s |\n',upper(pol_mode),eta_deg,E_comp);
-fprintf(fid,'| 雷达俯仰 | θ | %d° | 雷达在转台平面内 |\n',theta_inc_deg);
+fprintf(fid,'| 俯仰角 | ε | %.0f° | FEKO 平面波 θ = 90° − ε = %.0f° |\n',epsilon_deg,theta_inc_deg);
 fprintf(fid,'| 中心方位 | φc | %.1f° | 相对 -y 方向转过 %.1f° |\n',phi_c_deg,phi_c_deg-270);
 fprintf(fid,'| 单站解总数 | Nf×Naz | %d | 另加 RCS 曲线 %d 点 |\n',N_total,N_rcs_cut);
 fclose(fid);
 save('design_params.mat','c','f0','lambda','Br','rho_r','delta_f','Nf','f_axis',...
     'theta_m','theta_m_deg','delta_phi_deg','Naz','phi_axis_deg','phi_c_deg',...
-    'theta_inc_deg','pol_mode','eta_deg','E_comp','rho_a','R_ua','X_ua','L','Model','model_mode');
+    'theta_inc_deg','epsilon_deg','Naz_sub','pol_mode','eta_deg','E_comp','rho_a','R_ua','X_ua','L','Model','model_mode');
 
 if ~exist('figures','dir'); mkdir('figures'); end
 
