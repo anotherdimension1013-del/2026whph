@@ -5,7 +5,7 @@ short: SAR
 tagline: 从分辨率说起。
 description: 合成孔径雷达（SAR）核心考点：距离分辨率、方位分辨率、线性调频、匹配滤波与脉冲压缩。
 eyebrow: SYNTHETIC APERTURE RADAR
-course: SAR 原理 · 第一章
+course: SAR 原理 · 第一、二章
 question: "想看得清，\n又想看得远，怎么办？"
 order: 2
 status: 更新中
@@ -14,6 +14,8 @@ status: 更新中
 import PulseCompression from '../../assets/figures/sar/pulse-compression.svg';
 import MatchedFilterDrawing from '../../assets/figures/sar/matched-filter-drawing.svg';
 import PhaseAlignment from '../../assets/figures/sar/phase-alignment.svg';
+import SideLookingGeometry from '../../assets/figures/sar/side-looking-geometry.svg';
+import SyntheticAperture from '../../assets/figures/sar/synthetic-aperture.svg';
 
 
 ## 1-1 雷达分辨率的概念
@@ -234,4 +236,111 @@ $$
 
 <Quiz q="⑤ 匹配滤波器的输出与输入有什么关系？峰值出现在何时？">
 输出复包络是输入复包络自相关函数之半；峰值出现在 $t = t_0$。
+</Quiz>
+
+## 2-1 合成孔径原理概述
+
+<Callout title="一句话主线">
+SAR 的高分辨率有两层含义：**距离向**靠发射大时宽带宽积信号 + **脉冲压缩**（第一章）；**方位向**靠**合成孔径**，即雷达边飞边收，把各位置收到的信号（幅度和相位）存储起来叠加，等效成一根很长的天线阵列。
+</Callout>
+
+合成孔径雷达（Synthetic Aperture Radar，SAR，教材也称“综合孔径雷达”）是一种高分辨率**成像**雷达，能在能见度极差的气象条件下得到类似光学照片的高分辨率图像。
+
+### 正侧视几何
+
+<Figure n="2-1-a" caption="正侧视雷达几何（教材图 2-1-1 的简化重绘）：雷达沿 x 方向匀速飞行，波束斜向一侧照射，足迹随飞行扫出条带测绘带">
+  <SideLookingGeometry />
+</Figure>
+
+- 飞行器载着雷达沿 $x$ 方向以速度 $v_a$ **匀速直线**前进；
+- 雷达向**正侧方**发射并接收波束：水平方向（沿航向，即方位向）宽度为 $\beta$，垂直方向（俯仰向）宽度为 $\varphi$；
+- 波束与地面的交界面（足迹）随雷达前进，在地面上扫出一条带状的辐照带，称为**测绘带**，这就是雷达的成像对象（**条带成像**）。
+
+### 合成孔径的形成（天线阵列观点）
+
+雷达一边以匀速直线前进，一边以固定的**重复频率**（每秒发射脉冲的次数）发射并接收信号。把每次接收信号的幅度和相位**存储**起来并与以前的信号叠加，随着雷达前进就形成了一个**等效的线性天线阵列**：每个发射位置相当于阵列中的一个阵元。
+
+<Figure n="2-1-b" caption="合成孔径的形成：点目标 P 从进入真实波束（A 处）到离开波束（B 处），雷达飞过的距离 Lₛ 就是合成阵列的长度；长阵列的波束 βₛ 很窄">
+  <SyntheticAperture />
+</Figure>
+
+推导分四步，每一步都很短：
+
+<Formula meaning="真实天线的波束宽度（D 为真实天线尺寸，λ 为波长）" point="天线口面分布不均匀时还要乘一个因子 k；推导见 1-1 的补充">
+$$
+\beta = \frac{\lambda}{D} \tag{2-1-1}
+$$
+</Formula>
+
+<Formula meaning="宽度 β 的波束在距离 R 处照亮的宽度，也是合成孔径长度（对每个点目标而言）" point="点目标被照射期间雷达飞过的距离，就是等效阵列的最大长度">
+$$
+L_s = \beta R \tag{2-1-2}
+$$
+</Formula>
+
+<Formula meaning="长度为 Lₛ 的合成阵列的波束宽度" point="Lₛ 比 D 大很多倍，所以 βₛ 比 β 小很多倍，角分辨率大为改善">
+$$
+\beta_s = \frac{\lambda}{L_s} \tag{2-1-3}
+$$
+</Formula>
+
+<Formula meaning="把合成波束的 3 dB 宽度折算成距离 R 处的方位向分辨率" point="只和真实天线尺寸 D 有关，与波长 λ、距离 R 无关">
+$$
+\rho_a = \beta_{s,3\text{dB}}\cdot R \approx \frac{D}{2} \tag{2-1-4}
+$$
+</Formula>
+
+<Callout kind="extra" title="为什么是 D/2 而不是 D？（教材此处省略了一步）">
+直接把 (2-1-1)～(2-1-3) 代入：$\beta_s R = \dfrac{\lambda}{L_s}R = \dfrac{\lambda R}{\lambda R/D} = D$，得到的是 $D$，不是 $D/2$。
+
+差的 2 倍来自**双程相位**：普通阵列只接收，相邻阵元的相位差来自单程路程差；合成阵列中每个阵元**自发自收**，电波往返两次，相位差加倍。因此合成阵列的等效波束宽度要减半：
+
+$$
+\beta_{s} = \frac{\lambda}{2L_s}
+\quad\Longrightarrow\quad
+\rho_a = \frac{\lambda}{2L_s}\,R = \frac{\lambda R}{2\cdot\lambda R/D} = \frac{D}{2}
+$$
+
+式 (2-1-3) 写的 $\lambda/L_s$ 是普通（单程）阵列的结果；考试直接用结论 $\rho_a \approx D/2$。
+</Callout>
+
+<Callout kind="exam" title="核心结论：ρₐ ≈ D/2">
+- 方位分辨率**只与天线尺寸 $D$ 有关**，与波长 $\lambda$、距离 $R$ **无关**；
+- **天线越小，方位分辨率越好**（和真实孔径雷达正好相反）；
+- 天线波束被“锐化”了，这是合成孔径原理的**天线阵列观点**解释（后面还有多普勒观点，对应 1-1 中“方位向回波是线性调频信号”）。
+</Callout>
+
+**为什么天线越小反而越好？** $D$ 越小 → 真实波束 $\beta=\lambda/D$ 越宽 → 目标被照射的时间越长，合成孔径 $L_s = \beta R$ 越长 → 合成波束越窄。同理，距离 $R$ 越远，$L_s$ 也按比例变长，正好抵消了距离的影响。
+
+| | 真实孔径 | 合成孔径 |
+| --- | --- | --- |
+| 方位分辨率 | $\rho_a = \beta R = \lambda R/D$ | $\rho_a \approx D/2$ |
+| 与距离 $R$ | 越远越差 | 无关 |
+| 与天线 $D$ | 越大越好 | 越小越好 |
+| 例：$D=3\ \text{m}$，$\lambda=3\ \text{cm}$，$R=100\ \text{km}$ | $1\ \text{km}$ | $1.5\ \text{m}$ |
+
+<Callout kind="tip" title="一句话记忆">
+真实波束照多宽，合成孔径就有多长（$L_s=\beta R$）；孔径越长波束越窄，最终 $\rho_a \approx D/2$，**与 $R$、$\lambda$ 无关，天线越小越好**。
+</Callout>
+
+### 自测题
+
+<Quiz q="① SAR 的距离向和方位向高分辨率分别靠什么实现？">
+距离向：发射大时宽带宽积信号，再做脉冲压缩；方位向：利用雷达运动形成合成孔径（等效长天线阵列）。
+</Quiz>
+
+<Quiz q="② 合成孔径长度 Lₛ 是怎么定义的？为什么等于 βR？">
+对一个点目标，从它进入真实波束到离开波束，雷达飞过的距离就是合成孔径长度；波束张角 $\beta$ 在距离 $R$ 处照亮的宽度为 $\beta R$，所以 $L_s = \beta R$。
+</Quiz>
+
+<Quiz q="③ 推导 SAR 方位分辨率 ρₐ ≈ D/2。">
+$\beta=\lambda/D$，$L_s=\beta R=\lambda R/D$；合成阵列自发自收，等效波束 $\beta_s=\lambda/(2L_s)$；所以 $\rho_a=\beta_s R=\dfrac{\lambda R}{2\lambda R/D}=\dfrac{D}{2}$。
+</Quiz>
+
+<Quiz q="④ D = 2 m，λ = 3 cm，R = 50 km：分别求 β、Lₛ、真实孔径和 SAR 的方位分辨率。">
+$\beta=0.03/2=0.015\ \text{rad}$；$L_s=\beta R=750\ \text{m}$；真实孔径 $\rho_a=\beta R=$ **750 m**；SAR $\rho_a\approx D/2=$ **1 m**。
+</Quiz>
+
+<Quiz q="⑤ 为什么 SAR 的天线越小，方位分辨率反而越好？">
+天线越小，真实波束越宽，目标被照射时间越长，合成孔径 $L_s$ 越长，合成波束越窄，分辨率越高。
 </Quiz>

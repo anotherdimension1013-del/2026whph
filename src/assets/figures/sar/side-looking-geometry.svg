@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 470" role="img" aria-label="正侧视雷达几何：雷达沿 x 方向匀速飞行，波束照射地面形成条带测绘带">
+<title>正侧视雷达几何：雷达沿 x 方向匀速飞行，波束照射地面形成条带测绘带</title>
+<defs>
+  <marker id="arr21" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f4235"/></marker>
+  <marker id="arr21o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0714c"/></marker>
+</defs>
+<style>
+  text { font-family: inherit; fill: #3d4a40; font-size: 17px; }
+  .t { font-weight: 700; font-size: 18px; }
+  .m { fill: #8b947d; font-size: 15px; }
+  .o { fill: #c0714c; font-weight: 700; }
+  .g { fill: #4f7560; font-weight: 700; }
+</style>
+<text x="20.0" y="30.0" text-anchor="start" class="t">侧视：波束斜向一侧照射地面，随飞行扫出一条测绘带</text>
+<polygon points="133.0,313.0 553.0,313.0 664.6,388.6 244.6,388.6" fill="#e3eadf" stroke="none" stroke-width="1.2" opacity="1"/>
+<text x="574.6" y="414.6" text-anchor="middle" class="g">测绘带（条带）</text>
+<line x1="40.0" y1="250.0" x2="510.0" y2="250.0" stroke="#9aa093" stroke-width="1" opacity="1" stroke-dasharray="5 4"/>
+<text x="40.0" y="270.0" text-anchor="start" class="m">星下点航迹</text>
+<polygon points="250.0,313.0 316.0,313.0 467.2,388.6 322.0,388.6" fill="#c9d7c4" stroke="#4f7560" stroke-width="1.4" opacity="1"/>
+<line x1="40.0" y1="80.0" x2="510.0" y2="80.0" stroke="#2f4235" stroke-width="1.4" opacity="1"/>
+<line x1="400.0" y1="80.0" x2="510.0" y2="80.0" stroke="#2f4235" stroke-width="2" opacity="1" marker-end="url(#arr21)"/>
+<text x="510.0" y="68.0" text-anchor="end" class="t">飞行方向 x，速度 vₐ</text>
+<line x1="190.0" y1="80.0" x2="250.0" y2="313.0" stroke="#4f7560" stroke-width="1" opacity="0.7"/>
+<line x1="190.0" y1="80.0" x2="316.0" y2="313.0" stroke="#4f7560" stroke-width="1" opacity="0.7"/>
+<line x1="190.0" y1="80.0" x2="467.2" y2="388.6" stroke="#4f7560" stroke-width="1" opacity="0.7"/>
+<line x1="190.0" y1="80.0" x2="322.0" y2="388.6" stroke="#4f7560" stroke-width="1" opacity="0.7"/>
+<line x1="190.0" y1="80.0" x2="338.8" y2="350.8" stroke="#c0714c" stroke-width="1.8" opacity="1" stroke-dasharray="6 4"/>
+<text x="271.8" y="228.9" text-anchor="start" class="o">R</text>
+<line x1="190.0" y1="80.0" x2="190.0" y2="250.0" stroke="#9aa093" stroke-width="1" opacity="1" stroke-dasharray="3 3"/>
+<circle cx="190.0" cy="80.0" r="6" fill="#2f4235"/>
+<text x="190.0" y="70.0" text-anchor="end" class="t">雷达</text>
+<text x="394.6" y="416.6" text-anchor="middle" class="g">方位向张角 β（水平宽度）</text>
+<text x="250.0" y="317.0" text-anchor="end" class="m">俯仰向张角 φ（垂直宽度）</text>
+<text x="184.0" y="290.0" text-anchor="start" class="m"></text>
+</svg>

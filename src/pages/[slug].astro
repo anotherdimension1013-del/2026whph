@@ -15,7 +15,7 @@ const { note, prev, next } = Astro.props;
 const { Content, headings } = await render(note);
 // 二级标题少时（如 SAR 每章一节），把三级标题也放进目录
 const h2 = headings.filter((h) => h.depth === 2);
-const toc = h2.length >= 4 ? h2 : headings.filter((h) => h.depth <= 3);
+const toc = h2.length >= 3 ? h2 : headings.filter((h) => h.depth <= 3);
 const d = note.data;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---

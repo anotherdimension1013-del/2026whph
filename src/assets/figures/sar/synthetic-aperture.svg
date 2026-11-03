@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 520" role="img" aria-label="合成孔径的形成：雷达在 A、B 之间飞过的距离 Ls 构成等效长天线阵列">
+<title>合成孔径的形成：雷达在 A、B 之间飞过的距离 Ls 构成等效长天线阵列</title>
+<defs>
+  <marker id="arr21" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f4235"/></marker>
+  <marker id="arr21o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0714c"/></marker>
+</defs>
+<style>
+  text { font-family: inherit; fill: #3d4a40; font-size: 17px; }
+  .t { font-weight: 700; font-size: 18px; }
+  .m { fill: #8b947d; font-size: 15px; }
+  .o { fill: #c0714c; font-weight: 700; }
+  .g { fill: #4f7560; font-weight: 700; }
+</style>
+<text x="20.0" y="30.0" text-anchor="start" class="t">俯视：P 从进入波束到离开波束，雷达飞过的距离就是合成孔径长度</text>
+<polygon points="214.4,130.0 75.8,417.0 353.0,417.0" fill="#dfe8da" stroke="none" stroke-width="1.2" opacity="0.55"/>
+<line x1="214.4" y1="130.0" x2="75.8" y2="417.0" stroke="#4f7560" stroke-width="1" opacity="1"/>
+<line x1="214.4" y1="130.0" x2="353.0" y2="417.0" stroke="#4f7560" stroke-width="1" opacity="1"/>
+<polygon points="465.6,130.0 327.0,417.0 604.2,417.0" fill="#dfe8da" stroke="none" stroke-width="1.2" opacity="0.55"/>
+<line x1="465.6" y1="130.0" x2="327.0" y2="417.0" stroke="#4f7560" stroke-width="1" opacity="1"/>
+<line x1="465.6" y1="130.0" x2="604.2" y2="417.0" stroke="#4f7560" stroke-width="1" opacity="1"/>
+<line x1="20.0" y1="130.0" x2="640.0" y2="130.0" stroke="#2f4235" stroke-width="1.4" opacity="1"/>
+<line x1="550.0" y1="100.0" x2="640.0" y2="100.0" stroke="#2f4235" stroke-width="2" opacity="1" marker-end="url(#arr21)"/>
+<text x="550.0" y="90.0" text-anchor="start" class="t">vₐ</text>
+<circle cx="214.4" cy="130" r="4" fill="#c0714c"/>
+<circle cx="235.3" cy="130" r="4" fill="#c0714c"/>
+<circle cx="256.3" cy="130" r="4" fill="#c0714c"/>
+<circle cx="277.2" cy="130" r="4" fill="#c0714c"/>
+<circle cx="298.1" cy="130" r="4" fill="#c0714c"/>
+<circle cx="319.1" cy="130" r="4" fill="#c0714c"/>
+<circle cx="340.0" cy="130" r="4" fill="#c0714c"/>
+<circle cx="360.9" cy="130" r="4" fill="#c0714c"/>
+<circle cx="381.9" cy="130" r="4" fill="#c0714c"/>
+<circle cx="402.8" cy="130" r="4" fill="#c0714c"/>
+<circle cx="423.7" cy="130" r="4" fill="#c0714c"/>
+<circle cx="444.7" cy="130" r="4" fill="#c0714c"/>
+<circle cx="465.6" cy="130" r="4" fill="#c0714c"/>
+<text x="214.4" y="116.0" text-anchor="middle" class="t">A（P 进入波束）</text>
+<text x="465.6" y="116.0" text-anchor="middle" class="t">B（P 离开波束）</text>
+<line x1="214.4" y1="80.0" x2="465.6" y2="80.0" stroke="#c0714c" stroke-width="1.4" opacity="1" marker-end="url(#arr21o)"/>
+<line x1="465.6" y1="80.0" x2="214.4" y2="80.0" stroke="#c0714c" stroke-width="1.4" opacity="1" marker-end="url(#arr21o)"/>
+<text x="340.0" y="72.0" text-anchor="middle" class="o">合成孔径长度 Lₛ = βR</text>
+<circle cx="340" cy="390" r="7" fill="#2f4235"/>
+<text x="340.0" y="420.0" text-anchor="start" class="t">点目标 P</text>
+<line x1="340.0" y1="130.0" x2="340.0" y2="390.0" stroke="#9aa093" stroke-width="1" opacity="1" stroke-dasharray="4 4"/>
+<text x="348.0" y="273.0" text-anchor="start" class="t">R</text>
+<text x="210.4" y="200.0" text-anchor="middle" class="g">β</text>
+<polygon points="340.0,130.0 330.5,400.0 349.5,400.0" fill="#c0714c" stroke="none" stroke-width="1.2" opacity="0.35"/>
+<line x1="340.0" y1="130.0" x2="330.5" y2="400.0" stroke="#c0714c" stroke-width="1.2" opacity="1"/>
+<line x1="340.0" y1="130.0" x2="349.5" y2="400.0" stroke="#c0714c" stroke-width="1.2" opacity="1"/>
+<text x="370.0" y="208.0" text-anchor="start" class="o">合成波束 βₛ（很窄）</text>
+<text x="20.0" y="475.0" text-anchor="start" class="m">真实天线：波束宽 β = λ/D，在距离 R 处照亮 βR，方位分辨率差</text>
+<text x="20.0" y="502.0" text-anchor="start" class="m">合成阵列：长度 Lₛ = βR ≫ D，波束 βₛ 很窄，方位分辨率 ≈ D/2</text>
+</svg>

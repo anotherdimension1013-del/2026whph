@@ -87,7 +87,7 @@ h1 span { color: #62816a; }
 .prose table { width: 100%; margin: 14px 0 22px; border-collapse: collapse; font-size: 14px; line-height: 1.75; }
 .prose thead th { padding: 8px 12px; text-align: left; color: #8b947d; font-size: 11px; letter-spacing: .12em; border-bottom: 1px solid #cfd1c4; }
 .prose td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.prose td:first-child { white-space: nowrap; color: #34483a; font-weight: 600; }
+.prose td:first-child { color: #34483a; font-weight: 600; }
 
 /* ---------- 组件：便签 ---------- */
 .callout { margin: 20px 0; padding: 14px 18px; background: #f0eee3; border-left: 3px solid #b8b29a; font-size: 15px; line-height: 1.85; }
